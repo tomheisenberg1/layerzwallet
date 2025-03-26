@@ -1,0 +1,119 @@
+import { ArrowDownRightIcon, SendIcon, Info } from 'lucide-react';
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { DEFAULT_NETWORK } from '@shared/config';
+import { getDecimalsByNetwork, getIsTestnet, getKnowMoreUrl, getTickerByNetwork } from '@shared/models/network-getters';
+import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
+import { NetworkContext } from '@shared/hooks/NetworkContext';
+import { useBalance } from '@shared/hooks/useBalance';
+import { BackgroundCaller } from '../../../modules/background-caller';
+import { Button, Switch } from '../DesignSystem';
+import { getAvailableNetworks, NETWORK_ARKMUTINYNET, NETWORK_BITCOIN, Networks } from '@shared/types/networks';
+import TokensView from './TokensView';
+import PartnersView from './PartnersView';
+import { capitalizeFirstLetter, formatBalance } from '@shared/modules/string-utils';
+
+const Home: React.FC = () => {
+  const navigate = useNavigate();
+
+  const { network, setNetwork } = useContext(NetworkContext);
+  const { accountNumber } = useContext(AccountNumberContext);
+  const { balance } = useBalance(network ?? DEFAULT_NETWORK, accountNumber, BackgroundCaller);
+  const [isTestnet, setIsTestnet] = useState<boolean>(false);
+
+  // effect used only to navigate to onboarding screens if user is not onboarded
+  useEffect(() => {
+    (async () => {
+      const hasAcceptedTermsOfService = await BackgroundCaller.hasAcceptedTermsOfService();
+      const hasMnemonic = await BackgroundCaller.hasMnemonic();
+      const hasEncryptedMnemonic = await BackgroundCaller.hasEncryptedMnemonic();
+
+      if (!hasMnemonic) {
+        return navigate('/onboarding-intro');
+      }
+
+      if (!hasEncryptedMnemonic) {
+        return navigate('/onboarding-create-password');
+      }
+
+      if (!hasAcceptedTermsOfService) {
+        return navigate('/onboarding-tos');
+      }
+
+      // default: not navigating anywhere
+    })();
+  }, [navigate]);
+
+  useEffect(() => {
+    setIsTestnet(getIsTestnet(network));
+  }, [network]);
+
+  return (
+    <div>
+      <Switch
+        items={getAvailableNetworks()}
+        activeItem={network}
+        onItemClick={(item) => {
+          setNetwork(item as Networks);
+        }}
+      />
+      {getKnowMoreUrl(network) ? (
+        <div style={{ textAlign: 'right' }}>
+          <a
+            href={getKnowMoreUrl(network)}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: '#808080',
+              fontSize: '0.5em',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            <span>Learn about {capitalizeFirstLetter(network)}</span>
+            <span style={{ display: 'inline-block', marginLeft: '4px', position: 'relative', top: '2px' }}>
+              <Info size={15} />
+            </span>
+          </a>
+        </div>
+      ) : null}
+
+      {isTestnet ? (
+        <div style={{ color: 'darkred', width: '100%', marginBottom: '15px' }}>
+          <span style={{ fontSize: 14 }}>Testnet. Coins have no value</span>
+        </div>
+      ) : null}
+      <h1>
+        <span id="home-balance">{balance ? formatBalance(balance, getDecimalsByNetwork(network), 8) : ''}</span> {getTickerByNetwork(network)}
+      </h1>
+      <PartnersView />
+      <TokensView />
+      <br />
+      <br />
+      <Button
+        onClick={() => {
+          switch (network) {
+            case NETWORK_BITCOIN:
+              navigate('/send-btc');
+              break;
+            case NETWORK_ARKMUTINYNET:
+              navigate('/send-ark');
+              break;
+            default:
+              navigate('/send-evm');
+          }
+        }}
+      >
+        <SendIcon />
+        Send
+      </Button>
+      <Button onClick={() => navigate('/receive')}>
+        <ArrowDownRightIcon />
+        Receive
+      </Button>
+    </div>
+  );
+};
+
+export default Home;

@@ -1,0 +1,7 @@
+{
+  "extends": ["react-app", "prettier", "plugin:prettier/recommended"],
+  "ignorePatterns": ["**/node_modules/", "build/"],
+  "globals": {
+    "chrome": "readonly"
+  }
+}

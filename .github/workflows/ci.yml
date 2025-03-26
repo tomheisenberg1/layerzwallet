@@ -1,0 +1,155 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  ext-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: ext/package-lock.json
+
+      - name: Install node_modules
+        run: cd ext && npm ci
+
+      - name: Run unit tests
+        run: cd ext && npm run unit
+
+  ext-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: ext/package-lock.json
+
+      - name: Install node_modules
+        run: cd ext && npm ci
+
+      - name: Run integration tests
+        run: cd ext && npm run integration
+
+  ext-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: ext/package-lock.json
+
+      - name: Install node_modules
+        run: cd ext && npm ci
+
+      - name: Run lint
+        run: cd ext && npm run lint
+
+  ext-circular:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: ext/package-lock.json
+
+      - name: Install node_modules
+        run: cd ext && npm ci
+
+      - name: Run circular
+        run: cd ext && npm run circular
+
+  ext-e2e:
+    env:
+      TEST_MNEMONIC: ${{ secrets.TEST_MNEMONIC }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: ext/package-lock.json
+
+      - name: Install node_modules
+        run: cd ext && npm ci
+
+      - name: Add Sepolia testnet
+        run: cd ext && ./utils/add-sepolia.sh
+
+      - name: Run build
+        run: cd ext && NODE_ENV=production npm run build
+
+      - name: Install Playwright
+        run: cd ext && npx playwright install
+
+      - name: Install Playwright 2
+        run: cd ext && npx playwright install-deps
+
+      - name: Run e2e tests
+        run: cd ext && npm run e2e
+
+  mobile-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install node_modules
+        run: cd mobile && npm ci
+
+      - name: Run unit tests
+        run: cd mobile && npm run unit
+
+  mobile-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install node_modules
+        run: cd mobile && npm ci
+
+      - name: Run integration tests
+        run: cd mobile && npm run integration

@@ -1,0 +1,64 @@
+import { NETWORK_ARKMUTINYNET, NETWORK_BITCOIN, NETWORK_BOTANIXTESTNET, NETWORK_CITREATESTNET, NETWORK_ROOTSTOCK, NETWORK_SEPOLIA, NETWORK_STRATADEVNET, Networks } from '../types/networks';
+import { NetworkInfo } from '../types/network-info';
+
+export const AllNetworkInfos: Record<Networks, NetworkInfo> = {
+  [NETWORK_BITCOIN]: {
+    chainId: 0,
+    ticker: 'BTC',
+    decimals: 8,
+    explorerUrl: 'https://mempool.space',
+    rpcUrl: '',
+  },
+  [NETWORK_ROOTSTOCK]: {
+    chainId: 30,
+    ticker: 'RBTC',
+    rpcUrl: 'https://rpc.mainnet.rootstock.io/rFOXXhwHGfZbgbVVVbNvpyVdr4VjE6-M',
+    explorerUrl: 'https://rootstock.blockscout.com',
+    knowMoreUrl: 'https://www.bitcoinlayers.org/layers/rootstock',
+    decimals: 18,
+  },
+  [NETWORK_BOTANIXTESTNET]: {
+    chainId: 3636,
+    ticker: 'BTC',
+    rpcUrl: 'https://node.botanixlabs.dev',
+    explorerUrl: 'https://testnet.botanixscan.io',
+    decimals: 18,
+    knowMoreUrl: 'https://www.bitcoinlayers.org/layers/botanix',
+    isTestnet: true,
+  },
+  [NETWORK_STRATADEVNET]: {
+    chainId: 8091,
+    ticker: 'sBTC',
+    rpcUrl: 'https://stratareth3666f0713.devnet-annapurna.stratabtc.org',
+    explorerUrl: 'https://blockscoutb86fae58ae.devnet-annapurna.stratabtc.org',
+    decimals: 18,
+    knowMoreUrl: 'https://www.bitcoinlayers.org/layers/strata',
+    isTestnet: true,
+  },
+  [NETWORK_SEPOLIA]: {
+    chainId: 11155111,
+    ticker: 'SepoliaETH',
+    rpcUrl: 'https://sepolia.infura.io/v3/875fcd83840448e489608311502ae61c',
+    explorerUrl: 'https://sepolia.etherscan.io',
+    decimals: 18,
+    isTestnet: true,
+  },
+  [NETWORK_CITREATESTNET]: {
+    chainId: 5115,
+    ticker: 'cBTC',
+    rpcUrl: 'https://rpc.testnet.citrea.xyz',
+    explorerUrl: 'https://explorer.testnet.citrea.xyz',
+    decimals: 18,
+    knowMoreUrl: 'https://www.bitcoinlayers.org/layers/citrea',
+    isTestnet: true,
+  },
+  [NETWORK_ARKMUTINYNET]: {
+    chainId: -1,
+    ticker: 'BTC',
+    rpcUrl: '',
+    explorerUrl: '',
+    decimals: 8,
+    knowMoreUrl: 'https://arklabs.to/',
+    isTestnet: true,
+  },
+};

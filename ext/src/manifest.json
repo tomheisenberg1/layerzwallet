@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Layerz Wallet",
+  "short_name": "LZW",
+  "description": "Manage your Bitcoin across multiple Layer 2 solutions",
+  "homepage_url": "https://layerzwallet.com",
+  "options_page": "options.html",
+  "permissions": ["activeTab", "storage"],
+  "background": { "service_worker": "background.bundle.js" },
+  "action": {
+    "default_title": "Layerz Wallet",
+    "default_popup": "popup.html",
+    "default_icon": "icon-34.png"
+  },
+  "icons": {
+    "128": "icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "run_at": "document_start",
+      "js": ["contentScriptLoader.bundle.js"]
+    }
+  ],
+  "devtools_page": "devtools.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["icon-128.png", "icon-34.png", "contentScript.bundle.js", "contentScript.bundle.js.map", "contentScriptLoader.bundle.js.map"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

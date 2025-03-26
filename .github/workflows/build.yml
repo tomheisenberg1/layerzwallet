@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  ext-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: ext/package-lock.json
+
+      - name: Install node_modules
+        run: cd ext && npm ci
+
+      - name: Run build
+        run: cd ext && NODE_ENV=production npm run build
+
+      - name: Get package version
+        id: package_version
+        run: echo "VERSION=$(cd ext && node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Get branch name
+        id: branch_name
+        run: echo "BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: layerzwallet-${{ steps.package_version.outputs.VERSION }}-${{ steps.branch_name.outputs.BRANCH }}
+          path: ext/build/
+          if-no-files-found: error
