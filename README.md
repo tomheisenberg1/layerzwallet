@@ -1,8 +1,9 @@
-<img src="src/assets/img/icon-128.png" width="64"/>
-
 # Layerz Wallet
 
-Experience the future of Bitcoin with Layer2-focused wallet. Bitcoin-only, non-custodial, opensource
+Experience the future of Bitcoin with Layer2-focused wallet. Bitcoin-only, non-custodial, opensource.
+
+* Mobile apps (iOS/Android)
+* Browser extension
 
 🌐 [https://layerzwallet.com](https://layerzwallet.com)
 
@@ -24,13 +25,18 @@ Experience the future of Bitcoin with Layer2-focused wallet. Bitcoin-only, non-c
 ## Other features (current and upcoming)
 
 - [ ] Hardware wallet support (single-sig & multi-sig)
-- [ ] Code opensourced
+- [X] Code opensourced
 - [ ] Bridging from base layer to Layer 2
 - [ ] Swaps between Layers
 
-## Installing and Running
+# Project structure
 
-- Check if your [Node.js](https://nodejs.org/) version is >= **22**.
+This is amonorepo with 2 subprojects, `mobile/` & `ext/`. Shared code (anything thah can be used, cryptography, network fetchers, react hooks) are shared in `shared/`
+
+
+## Installing and Running (ext)
+
+
 - Run `npm install` to install the dependencies.
 - Run `npm start`
 - Load your extension on Chrome following:
@@ -39,12 +45,17 @@ Experience the future of Bitcoin with Layer2-focused wallet. Bitcoin-only, non-c
   3.  Click on `Load unpacked extension`
   4.  Select the `build` folder.
 
+## Installing and Running (mobile)
+
+- Run `npm install` to install the dependencies.
+- Run `npm start`
+- Use Expo Go to scan QR code from terminal
+
 ## Tests
 
-- `npm run unit`
-- `npm run integration`
+TBD
 
-## e2e
+## e2e (ext)
 
 - `npx playwright install`
 - `npx playwright install-deps`
