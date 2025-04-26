@@ -90,7 +90,12 @@ export default function IndexScreen() {
 
       <ThemedView style={styles.networkContainer}>
         {networks.map((availableNetwork) => (
-          <TouchableOpacity key={availableNetwork} style={[styles.networkButton, network === availableNetwork && styles.selectedNetworkButton]} onPress={() => setNetwork(availableNetwork)}>
+          <TouchableOpacity
+            key={availableNetwork}
+            testID={network === availableNetwork ? `selectedNetwork-${availableNetwork}` : `network-${availableNetwork}`}
+            style={[styles.networkButton, network === availableNetwork && styles.selectedNetworkButton]}
+            onPress={() => setNetwork(availableNetwork)}
+          >
             <ThemedText style={[styles.networkButtonText, network === availableNetwork && styles.selectedNetworkButtonText]}>{availableNetwork.toUpperCase()}</ThemedText>
           </TouchableOpacity>
         ))}

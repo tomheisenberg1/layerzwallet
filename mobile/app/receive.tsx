@@ -49,6 +49,11 @@ export default function ReceiveScreen() {
     }
   };
 
+  // Color coding for network verification (matching the index screen's selectedNetworkButton style)
+  const getNetworkColor = () => {
+    return '#007AFF'; // Blue color matching the selectedNetworkButton in index.tsx
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Stack.Screen
@@ -59,16 +64,23 @@ export default function ReceiveScreen() {
       />
 
       <ThemedView style={styles.contentContainer}>
-        <ThemedText style={styles.subtitle}>Your {capitalizeFirstLetter(network)} Address</ThemedText>
+        {/* Network indicator bar - visually shows the selected network with color */}
+        <ThemedView style={[styles.networkBar, { backgroundColor: getNetworkColor() }]}>
+          <ThemedText style={styles.networkText}>{network?.toUpperCase()}</ThemedText>
+        </ThemedView>
 
-        <ThemedView style={styles.qrContainer}>
+        <ThemedText testID="NetworkAddressHeader" style={styles.subtitle}>
+          Your {capitalizeFirstLetter(network || '')} Address
+        </ThemedText>
+
+        <ThemedView style={styles.qrContainer} testID="QrContainer">
           {isLoading ? (
-            <ThemedView style={styles.qrPlaceholder}>
+            <ThemedView style={styles.qrPlaceholder} testID="LoadingPlaceholder">
               <ActivityIndicator size="large" color="#007AFF" />
               <ThemedText style={styles.loadingText}>Loading address...</ThemedText>
             </ThemedView>
           ) : address ? (
-            <QRCode value={address} size={200} backgroundColor="white" color="black" />
+            <QRCode testID="AddressQrCode" value={address} size={200} backgroundColor="white" color="black" />
           ) : (
             <ThemedView style={styles.qrPlaceholder}>
               <ThemedText>No address available</ThemedText>
@@ -77,15 +89,23 @@ export default function ReceiveScreen() {
         </ThemedView>
 
         <ThemedView style={styles.addressContainer}>
-          <ThemedText style={styles.addressLabel}>Address:</ThemedText>
-          <TouchableOpacity onPress={handleCopyAddress} style={styles.addressTextContainer} disabled={!address}>
-            {isLoading ? <ThemedText style={styles.addressText}>Loading...</ThemedText> : <ThemedText style={styles.addressText}>{address ? address : 'No address available'}</ThemedText>}
-            {address && <Ionicons name="copy-outline" size={20} color="#007AFF" style={styles.copyIcon} />}
+          <ThemedText testID="AddressLabel" style={styles.addressLabel}>
+            Address:
+          </ThemedText>
+          <TouchableOpacity testID="CopyAddressButton" onPress={handleCopyAddress} style={styles.addressTextContainer} disabled={!address}>
+            {isLoading ? (
+              <ThemedText style={styles.addressText}>Loading...</ThemedText>
+            ) : (
+              <ThemedText testID="AddressText" style={styles.addressText}>
+                {address ? address : 'No address available'}
+              </ThemedText>
+            )}
+            {address && <Ionicons testID="CopyIcon" name="copy-outline" size={20} color="#007AFF" style={styles.copyIcon} />}
           </TouchableOpacity>
         </ThemedView>
 
-        <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
-          <Ionicons name="share-outline" size={24} color="#007AFF" />
+        <TouchableOpacity testID="ShareButton" onPress={handleShare} style={styles.shareButton}>
+          <Ionicons testID="ShareIcon" name="share-outline" size={24} color="#007AFF" />
         </TouchableOpacity>
       </ThemedView>
     </SafeAreaView>
@@ -166,5 +186,17 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
+  },
+  networkBar: {
+    marginBottom: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignItems: 'center',
+  },
+  networkText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });

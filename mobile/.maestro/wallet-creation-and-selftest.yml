@@ -3,6 +3,7 @@ appId: com.layerzwallet.mobile
 ---
 - launchApp:
     clearState: true
+    clearKeychain: true
 
 # Wait for the initial screen and click Create New Wallet
 - tapOn: "Create New Wallet"
@@ -50,12 +51,12 @@ appId: com.layerzwallet.mobile
 # Scroll to the bottom to find the Self Test button as emu screen can be small
 - scrollUntilVisible:
       element:
-        id: "SelftestButton"
+        id: "SelfTestButton"
       direction: DOWN
 
 # Navigate to Self Test
 - tapOn:
-    id: "SelftestButton"
+    id: "SelfTestButton"
 - waitForAnimationToEnd
 
 # Run the self test
