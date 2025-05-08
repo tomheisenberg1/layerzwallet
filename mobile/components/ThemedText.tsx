@@ -1,6 +1,6 @@
 import { Text, type TextProps, type TextStyle } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { Typography } from '../../shared/constants/Typography';
+import { Typography } from '@/shared/constants/Typography';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -16,24 +16,24 @@ export function ThemedText({ style, lightColor, darkColor, type = 'default', ...
   switch (type) {
     case 'headline':
     case 'title':
-      typographyStyle = { ...(Typography.headline as TextStyle) };
+      typographyStyle = Typography.headline;
       break;
     case 'subHeadline':
     case 'subtitle':
-      typographyStyle = { ...(Typography.subHeadline as TextStyle) };
+      typographyStyle = Typography.subHeadline;
       break;
     case 'paragraph':
     case 'default':
-      typographyStyle = { ...(Typography.paragraph as TextStyle) };
+      typographyStyle = Typography.paragraph;
       break;
     case 'defaultSemiBold':
-      typographyStyle = [{ ...(Typography.paragraph as TextStyle) }, { fontWeight: '700' }];
+      typographyStyle = [Typography.paragraph, { fontWeight: '700' }];
       break;
     case 'link':
-      typographyStyle = [{ ...(Typography.paragraph as TextStyle) }, { color: '#0a7ea4', lineHeight: 30 }];
+      typographyStyle = [Typography.paragraph, { color: '#0a7ea4', lineHeight: 30 }];
       break;
     default:
-      typographyStyle = { ...(Typography.paragraph as TextStyle) };
+      typographyStyle = Typography.paragraph;
   }
 
   return <Text style={[{ color }, typographyStyle, style]} {...rest} />;
