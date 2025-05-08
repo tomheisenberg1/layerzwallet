@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { BackgroundExecutor } from '../../src/modules/background-executor';
+import { BackgroundExecutor } from '@/src/modules/background-executor';
 import { ThemedText } from '../../components/ThemedText';
 
 export default function ImportWalletScreen() {
