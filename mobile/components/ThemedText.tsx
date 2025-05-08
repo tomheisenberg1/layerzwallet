@@ -1,54 +1,40 @@
-import { Text, type TextProps, StyleSheet } from 'react-native';
-
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Text, type TextProps, type TextStyle } from 'react-native';
+import { useThemeColor } from '../hooks/useThemeColor';
+import { Typography } from '../../shared/constants/Typography';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link' | 'headline' | 'subHeadline' | 'paragraph';
 };
 
 export function ThemedText({ style, lightColor, darkColor, type = 'default', ...rest }: ThemedTextProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
-  return (
-    <Text
-      style={[
-        { color },
-        type === 'default' ? styles.default : undefined,
-        type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
-        style,
-      ]}
-      {...rest}
-    />
-  );
-}
+  // Map type prop to Typography styles
+  let typographyStyle: TextStyle | (TextStyle | undefined)[];
+  switch (type) {
+    case 'headline':
+    case 'title':
+      typographyStyle = { ...(Typography.headline as TextStyle) };
+      break;
+    case 'subHeadline':
+    case 'subtitle':
+      typographyStyle = { ...(Typography.subHeadline as TextStyle) };
+      break;
+    case 'paragraph':
+    case 'default':
+      typographyStyle = { ...(Typography.paragraph as TextStyle) };
+      break;
+    case 'defaultSemiBold':
+      typographyStyle = [{ ...(Typography.paragraph as TextStyle) }, { fontWeight: '700' }];
+      break;
+    case 'link':
+      typographyStyle = [{ ...(Typography.paragraph as TextStyle) }, { color: '#0a7ea4', lineHeight: 30 }];
+      break;
+    default:
+      typographyStyle = { ...(Typography.paragraph as TextStyle) };
+  }
 
-const styles = StyleSheet.create({
-  default: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
-  },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  link: {
-    lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
-  },
-});
+  return <Text style={[{ color }, typographyStyle, style]} {...rest} />;
+}

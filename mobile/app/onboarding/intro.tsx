@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { ThemedText } from '../../components/ThemedText';
 
 export default function IntroScreen() {
   const router = useRouter();
@@ -16,17 +17,17 @@ export default function IntroScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome to LZW</Text>
-        <Text style={styles.subtitle}>Do you want to create a new wallet or import an existing one?</Text>
+        <ThemedText type="title">Welcome to LZW</ThemedText>
+        <ThemedText type="subtitle">Do you want to create a new wallet or import an existing one?</ThemedText>
       </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={[styles.button, styles.primaryButton]} onPress={handleCreateWallet}>
-          <Text style={styles.buttonText}>Create New Wallet</Text>
+          <ThemedText style={styles.buttonText}>Create New Wallet</ThemedText>
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={handleImportWallet}>
-          <Text style={styles.buttonText}>Import Existing</Text>
+          <ThemedText style={styles.buttonText}>Import Existing</ThemedText>
         </TouchableOpacity>
       </View>
     </View>

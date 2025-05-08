@@ -1,6 +1,7 @@
 import { BarcodeScanningResult, CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import React, { createContext, ReactNode, useState } from 'react';
-import { Button, Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from '@/components/ThemedText';
 
 interface IScanQrContext {
   scanQr: () => Promise<string>;
@@ -49,7 +50,7 @@ export const ScanQrContextProvider: React.FC<{ children: ReactNode }> = (props) 
       // Camera permissions are not granted yet.
       return (
         <View style={styles.container}>
-          <Text style={styles.message}>We need your permission to show the camera</Text>
+          <ThemedText style={styles.message}>We need your permission to show the camera</ThemedText>
           <Button onPress={requestPermission} title="grant permission" />
         </View>
       );
@@ -65,7 +66,7 @@ export const ScanQrContextProvider: React.FC<{ children: ReactNode }> = (props) 
         <CameraView style={styles.camera} facing={facing} onBarcodeScanned={onBarcodeScanned} barcodeScannerSettings={{ barcodeTypes: ['qr'] }} autofocus={'on'}>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={cancelCamera}>
-              <Text style={styles.text}>Cancel</Text>
+              <ThemedText style={styles.text}>Cancel</ThemedText>
             </TouchableOpacity>
           </View>
         </CameraView>
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: 'white',
   },
   modalOverlay: {
