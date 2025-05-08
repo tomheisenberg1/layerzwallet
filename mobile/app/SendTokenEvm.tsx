@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import LongPressButton from '@/components/LongPressButton';
@@ -249,7 +249,7 @@ const SendTokenEvm: React.FC = () => {
             {screenState === 'init' && (
               <TouchableOpacity style={styles.sendButton} onPress={prepareTransaction}>
                 <Ionicons name="send" size={20} color="white" style={styles.sendIcon} />
-                <Text style={styles.sendButtonText}>Send</Text>
+                <ThemedText style={styles.sendButtonText}>Send</ThemedText>
               </TouchableOpacity>
             )}
 
