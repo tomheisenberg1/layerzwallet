@@ -1,11 +1,3 @@
-type TextStyle = {
-  fontFamily?: string;
-  fontSize?: number;
-  fontWeight?: 'light' | 'normal' | 'bold' | string;
-  lineHeight?: number;
-  letterSpacing?: number;
-};
-
 const fontFamily = {
   light: 'Inter-Light',
   regular: 'Inter-Regular',
@@ -14,25 +6,25 @@ const fontFamily = {
   black: 'Inter-Black',
 };
 
-export const Typography: Record<string, TextStyle> = {
+export const Typography = {
   headline: {
     fontFamily: fontFamily.light,
     fontSize: 32,
-    fontWeight: 'light',
+    fontWeight: '300',
     lineHeight: 40,
     letterSpacing: 0.2,
   },
   subHeadline: {
     fontFamily: fontFamily.regular,
     fontSize: 20,
-    fontWeight: 'normal',
+    fontWeight: '400',
     lineHeight: 28,
     letterSpacing: 0.1,
   },
   paragraph: {
     fontFamily: fontFamily.regular,
     fontSize: 16,
-    fontWeight: 'normal',
+    fontWeight: '400',
     lineHeight: 24,
     letterSpacing: 0.05,
   },
