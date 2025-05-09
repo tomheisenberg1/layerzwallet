@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tokenName: {
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: 14,
   },
   networkName: {
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   symbol: {
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   buttonContainer: {
     flexDirection: 'row',

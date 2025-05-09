@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BackgroundExecutor } from '@/src/modules/background-executor';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function CreateWalletScreen() {
   const router = useRouter();
@@ -36,20 +37,20 @@ export default function CreateWalletScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Create wallet</Text>
+        <ThemedText type="title">Create wallet</ThemedText>
       </View>
       <View style={styles.content}>
-        <Text>Write down these 12 words in numerical order and keep them in a secure place. Never share them with anyone.</Text>
+        <ThemedText>Write down these 12 words in numerical order and keep them in a secure place. Never share them with anyone.</ThemedText>
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#007AFF" />
-            <Text style={styles.loadingText}>Creating your wallet...</Text>
+            <ThemedText style={styles.loadingText}>Creating your wallet...</ThemedText>
           </View>
         ) : (
           words.map((word, index) => (
-            <Text key={index}>
+            <ThemedText key={index}>
               {index + 1}. {word}
-            </Text>
+            </ThemedText>
           ))
         )}
       </View>
@@ -57,7 +58,7 @@ export default function CreateWalletScreen() {
       <View style={styles.buttonContainer}>
         {!isLoading && (
           <TouchableOpacity style={[styles.button, styles.primaryButton]} onPress={handleContinue}>
-            <Text style={styles.buttonText}>Continue</Text>
+            <ThemedText style={styles.buttonText}>Continue</ThemedText>
           </TouchableOpacity>
         )}
       </View>

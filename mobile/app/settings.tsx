@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   scrollContainer: {
     flex: 1,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginBottom: 16,
   },
   button: {
@@ -154,14 +154,14 @@ const styles = StyleSheet.create({
   },
   dangerButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   selfTestButton: {
     backgroundColor: '#34C759',
   },
   selfTestButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   accountText: {
     fontSize: 16,
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   },
   accountButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   accountButtonTextActive: {
     color: 'white',

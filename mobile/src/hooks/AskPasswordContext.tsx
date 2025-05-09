@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     marginBottom: 15,
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   input: {
     width: '100%',
@@ -134,6 +134,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
 });

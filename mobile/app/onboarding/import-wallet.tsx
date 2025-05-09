@@ -1,8 +1,9 @@
-import { BackgroundExecutor } from '@/src/modules/background-executor';
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { BackgroundExecutor } from '@/src/modules/background-executor';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function ImportWalletScreen() {
   const router = useRouter();
@@ -40,8 +41,8 @@ export default function ImportWalletScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
-          <Text style={styles.title}>Import wallet</Text>
-          <Text style={styles.subtitle}>Enter your 12 or 24-word recovery phrase</Text>
+          <ThemedText type="title">Import wallet</ThemedText>
+          <ThemedText type="subtitle">Enter your 12 or 24-word recovery phrase</ThemedText>
 
           <View style={styles.mnemonicContainer}>
             <TextInput
@@ -58,12 +59,12 @@ export default function ImportWalletScreen() {
             />
           </View>
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <ThemedText style={styles.error}>{error}</ThemedText> : null}
         </View>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={[styles.button, styles.secondaryButton, isLoading && styles.disabledButton]} onPress={handleImportWallet} disabled={isLoading}>
-            {isLoading ? <ActivityIndicator color="white" size="small" /> : <Text style={styles.buttonText}>Import</Text>}
+            {isLoading ? <ActivityIndicator color="white" size="small" /> : <ThemedText style={styles.buttonText}>Import</ThemedText>}
           </TouchableOpacity>
         </View>
       </ScrollView>
