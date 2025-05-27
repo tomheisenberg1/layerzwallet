@@ -8,6 +8,11 @@ import { Hello } from '@shared/class/hello';
 import { AccountNumberContextProvider } from '@shared/hooks/AccountNumberContext';
 import { EStep, InitializationContext, InitializationContextProvider } from '@shared/hooks/InitializationContext';
 import { NetworkContextProvider } from '@shared/hooks/NetworkContext';
+
+import { Hello } from '@shared/class/hello';
+import { AccountNumberContextProvider } from '@shared/hooks/AccountNumberContext';
+import { EStep, InitializationContext, InitializationContextProvider } from '@shared/hooks/InitializationContext';
+import { NetworkContextProvider } from '@shared/hooks/NetworkContext';
 import { LayerzStorage } from '../../class/layerz-storage';
 import { SwrCacheProvider } from '../../class/swr-cache-provider';
 import { AskPasswordContextProvider } from '../../hooks/AskPasswordContext';
@@ -24,13 +29,15 @@ import OnboardingTos from './OnboardingTos';
 import './Popup.css';
 import Receive from './Receive';
 import ReceiveBreez from './ReceiveBreez';
+import ReceiveBreez from './ReceiveBreez';
 import ReceiveLightning from './ReceiveLightning';
 import SendArk from './SendArk';
+import SendBreez from './SendBreez';
 import SendBreez from './SendBreez';
 import SendBtc from './SendBtc';
 import SendEvm from './SendEvm';
 import SendLightning from './SendLightning';
-import SendLiquid from './SendLiquid';
+import SendLiquidBreez from './SendLiquidBreez';
 import SendTokenEvm from './SendTokenEvm';
 import SettingsPage from './SettingsPage';
 import TestPage from './TestPage';
@@ -80,7 +87,7 @@ const AppContent: React.FC = () => {
             <Route path="/receive-breez" element={<ReceiveBreez />} />
             <Route path="/receive-lightning" element={<ReceiveLightning />} />
             <Route path="/send-breez" element={<SendBreez />} />
-            <Route path="/send-liquid" element={<SendLiquid />} />
+            <Route path="/send-liquid-breez" element={<SendLiquidBreez />} />
             <Route path="/send-evm" element={<SendEvm />} />
             <Route path="/send-ark" element={<SendArk />} />
             <Route path="/send-token-evm" element={<SendTokenEvm />} />
