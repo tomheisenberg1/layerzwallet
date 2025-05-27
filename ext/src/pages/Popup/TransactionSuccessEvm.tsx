@@ -4,6 +4,7 @@ import { CheckCircle2, Loader, XCircle } from 'lucide-react';
 import { useLocation } from 'react-router';
 import { Networks } from '@shared/types/networks';
 import { getDecimalsByNetwork, getExplorerUrlByNetwork, getTickerByNetwork } from '@shared/models/network-getters';
+import { ThemedText } from '../../components/ThemedText';
 import BigNumber from 'bignumber.js';
 import { useTransactionReceipt } from '@shared/hooks/useTransactionReceipt';
 import { ethers } from 'ethers';
@@ -90,7 +91,7 @@ const TransactionSuccessEvm: React.FC = () => {
             <line x1="12" y1="8" x2="12" y2="12"></line>
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
           </svg>
-          <span style={{ paddingLeft: '5px' }}>Transaction can not be found on the blockchain. Insufficient fee?</span>
+          <ThemedText style={{ paddingLeft: '5px' }}>Transaction can not be found on the blockchain. Insufficient fee?</ThemedText>
         </div>
       )}
 
@@ -103,47 +104,49 @@ const TransactionSuccessEvm: React.FC = () => {
           border: '1px solid #e0e0e0',
         }}
       >
-        <p style={{ color: '#666', fontSize: '14px', marginBottom: '10px', marginTop: '0px' }}>Summary of your recent transaction</p>
+        <ThemedText style={{ color: '#666', fontSize: '14px', marginBottom: '10px', marginTop: '0px' }}>Summary of your recent transaction</ThemedText>
 
         {+amount ? (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
-            <span>Amount</span>
-            <strong>
+            <ThemedText>Amount</ThemedText>
+            <ThemedText type="defaultSemiBold">
               {formatBalance(amount, getDecimalsByNetwork(network))} {getTickerByNetwork(network)}
-            </strong>
+            </ThemedText>
           </div>
         ) : null}
 
         {amountToken && tokenInfo ? (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
-            <span>Amount</span>
-            <strong>
+            <ThemedText>Amount</ThemedText>
+            <ThemedText type="defaultSemiBold">
               {formatBalance(amountToken, tokenInfo.decimals, 2)} {tokenInfo.symbol}
-            </strong>
+            </ThemedText>
           </div>
         ) : null}
 
         {receipt ? (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
-            <span>Fee paid</span>
-            <strong>{calculateFees()}</strong>
+            <ThemedText>Fee paid</ThemedText>
+            <ThemedText type="defaultSemiBold">{calculateFees()}</ThemedText>
           </div>
         ) : null}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
-          <span>Recipient</span>
-          <strong style={{ wordBreak: 'break-all', textAlign: 'right' }}>{recipient}</strong>
+          <ThemedText>Recipient</ThemedText>
+          <ThemedText type="defaultSemiBold" style={{ wordBreak: 'break-all', textAlign: 'right' }}>
+            {recipient}
+          </ThemedText>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
-          <span>Network</span>
-          <strong>{capitalizeFirstLetter(network)}</strong>
+          <ThemedText>Network</ThemedText>
+          <ThemedText type="defaultSemiBold">{capitalizeFirstLetter(network)}</ThemedText>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px' }}>
-          <span>Transaction ID</span>
+          <ThemedText>Transaction ID</ThemedText>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span
+            <ThemedText
               style={{
                 maxWidth: '150px',
                 overflow: 'hidden',
@@ -153,7 +156,7 @@ const TransactionSuccessEvm: React.FC = () => {
               }}
             >
               {transactionId.replace('0x', '')}
-            </span>
+            </ThemedText>
             <button style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }} onClick={() => navigator.clipboard.writeText(transactionId)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>

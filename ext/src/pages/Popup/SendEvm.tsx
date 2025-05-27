@@ -19,6 +19,7 @@ import { getDeviceID } from '@shared/modules/device-id';
 import { formatBalance } from '@shared/modules/string-utils';
 import { useScanQR } from '../../hooks/ScanQrContext';
 import { SecureStorage } from '../../class/secure-storage';
+import { ThemedText } from '../../components/ThemedText';
 import { ENCRYPTED_PREFIX, STORAGE_KEY_MNEMONIC } from '@shared/types/IStorage';
 import { LayerzStorage } from '../../class/layerz-storage';
 import { Csprng } from '../../class/rng';
@@ -172,9 +173,9 @@ const SendEvm: React.FC = () => {
         <div style={{ marginBottom: '10px' }}></div>
         <Input type="numbers" data-testid="amount-input" placeholder="0.00" onChange={(event) => setAmount(event.target.value)} />
         <div style={{ color: 'gray', width: '100%', marginBottom: '15px' }}>
-          <span style={{ fontSize: 16 }}>
+          <ThemedText style={{ fontSize: 16 }}>
             Available balance: {balance ? formatBalance(balance, getDecimalsByNetwork(network)) : ''} {getTickerByNetwork(network)}
-          </span>
+          </ThemedText>
         </div>
       </div>
 
@@ -182,19 +183,19 @@ const SendEvm: React.FC = () => {
       <div style={{ width: '100%' }}>
         {fees && maxFees ? (
           <div style={{ color: 'gray', width: '100%', marginBottom: '15px' }}>
-            <span style={{ fontSize: 16 }}>
+            <ThemedText style={{ fontSize: 16 }}>
               Fees between {formatBalance(fees, getDecimalsByNetwork(network))} {getTickerByNetwork(network)} and {formatBalance(maxFees, getDecimalsByNetwork(network))} {getTickerByNetwork(network)}
-            </span>
+            </ThemedText>
           </div>
         ) : null}
 
         {error ? (
           <div style={{ color: 'red', width: '100%', marginBottom: '15px' }}>
-            <span style={{ fontSize: 16 }}>{error}</span>
+            <ThemedText style={{ fontSize: 16 }}>{error}</ThemedText>
           </div>
         ) : null}
 
-        {isPreparing ? <span>loading...</span> : null}
+        {isPreparing ? <ThemedText>loading...</ThemedText> : null}
 
         {!bytes && !isPreparing ? (
           <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 20 }}>

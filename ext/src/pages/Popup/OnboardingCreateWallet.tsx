@@ -2,6 +2,7 @@ import { EStep, InitializationContext } from '@shared/hooks/InitializationContex
 import React, { useContext, useEffect, useState } from 'react';
 import { BackgroundCaller } from '../../modules/background-caller';
 import { Bubble, Button } from './DesignSystem';
+import { ThemedText } from '../../components/ThemedText';
 
 const OnboardingCreateWallet: React.FC = () => {
   const [recoveryPhrase, setRecoveryPhrase] = useState<string>('');
@@ -27,13 +28,15 @@ const OnboardingCreateWallet: React.FC = () => {
   return (
     <>
       <div>
-        <h1>Your secret recovery phrase</h1>
-        <p>Write down these 12 words in numerical order and keep them in a secure place. Never share them with anyone.</p>
+        <ThemedText type="headline">Your secret recovery phrase</ThemedText>
+        <ThemedText type="paragraph">Write down these 12 words in numerical order and keep them in a secure place. Never share them with anyone.</ThemedText>
         <div>
           {words.map((word, index) => (
-            <span>
+            <span key={index}>
               <Bubble>
-                {index + 1}. {word}
+                <ThemedText type="defaultSemiBold">
+                  {index + 1}. {word}
+                </ThemedText>
               </Bubble>
             </span>
           ))}
@@ -42,7 +45,7 @@ const OnboardingCreateWallet: React.FC = () => {
 
       <br />
       <Button onClick={handleNext} disabled={!recoveryPhrase}>
-        Next
+        <ThemedText>Next</ThemedText>
       </Button>
     </>
   );

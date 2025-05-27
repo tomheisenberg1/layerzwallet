@@ -1,20 +1,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from './DesignSystem';
+import { ThemedText } from '../../components/ThemedText';
 
 const OnboardingIntro: React.FC = () => {
   const navigate = useNavigate();
 
   return (
     <div>
-      <h2>onboarding-intro</h2>
+      <ThemedText type="headline">onboarding-intro</ThemedText>
 
       <Button
         onClick={() => {
           navigate('/onboarding-import-wallet');
         }}
       >
-        Import wallet
+        <ThemedText>Import wallet</ThemedText>
       </Button>
       <span> </span>
       <Button
@@ -22,7 +23,7 @@ const OnboardingIntro: React.FC = () => {
           navigate('/onboarding-create-wallet');
         }}
       >
-        Create wallet
+        <ThemedText>Create wallet</ThemedText>
       </Button>
     </div>
   );

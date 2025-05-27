@@ -3,6 +3,7 @@ import writeQR from '@paulmillr/qr';
 import BigNumber from 'bignumber.js';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { ThemedText } from '../../components/ThemedText';
 
 import { BreezWallet } from '@shared/class/wallets/breez-wallet';
 import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
@@ -171,14 +172,18 @@ const ReceiveLightning: React.FC = () => {
   if (isNewBalanceGT()) {
     return (
       <div style={{ position: 'relative' }}>
-        <h2>Receive Lightning on {network.charAt(0).toUpperCase() + network.slice(1)}</h2>
+        <ThemedText type="headline">Receive Lightning on {network.charAt(0).toUpperCase() + network.slice(1)}</ThemedText>
 
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <div style={{ color: '#4CAF50', fontSize: '48px', marginBottom: '20px' }}>✓</div>
           <h2 style={{ color: '#4CAF50', marginBottom: '15px' }}>
-            Received: +{isNewBalanceGT() ? formatBalance(String(isNewBalanceGT()), getDecimalsByNetwork(network), 8) : ''} {getTickerByNetwork(network)}
+            <ThemedText type="headline">
+              Received: +{isNewBalanceGT() ? formatBalance(String(isNewBalanceGT()), getDecimalsByNetwork(network), 8) : ''} {getTickerByNetwork(network)}
+            </ThemedText>
           </h2>
-          <WideButton onClick={() => navigate('/')}>Back to Wallet</WideButton>
+          <WideButton onClick={() => navigate('/')}>
+            <ThemedText>Back to Wallet</ThemedText>
+          </WideButton>
         </div>
       </div>
     );
@@ -186,16 +191,16 @@ const ReceiveLightning: React.FC = () => {
 
   return (
     <div style={{ position: 'relative' }}>
-      <h2>Receive Lightning on {network.charAt(0).toUpperCase() + network.slice(1)}</h2>
+      <ThemedText type="headline">Receive Lightning on {network.charAt(0).toUpperCase() + network.slice(1)}</ThemedText>
 
       {!invoice ? (
         <>
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <p style={{ color: 'gray', fontSize: '18px' }}>Enter amount to receive in sats</p>
+            <ThemedText style={{ color: 'gray', fontSize: '18px' }}>Enter amount to receive in sats</ThemedText>
             {limits && (
-              <p style={{ color: 'gray', fontSize: '14px' }}>
+              <ThemedText style={{ color: 'gray', fontSize: '14px' }}>
                 Min: {limits.min} sats | Max: {limits.max} sats
-              </p>
+              </ThemedText>
             )}
           </div>
 
@@ -203,10 +208,14 @@ const ReceiveLightning: React.FC = () => {
             <Input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="Amount (sats)" value={amount} onChange={handleAmountChange} style={{ fontSize: '18px', textAlign: 'center' }} />
           </div>
 
-          {error && <div style={{ color: 'red', textAlign: 'center', margin: '10px 0' }}>{error}</div>}
+          {error && (
+            <div style={{ color: 'red', textAlign: 'center', margin: '10px 0' }}>
+              <ThemedText>{error}</ThemedText>
+            </div>
+          )}
 
           <WideButton onClick={generateInvoice} disabled={isGenerating || !isWalletInitialized}>
-            {isGenerating ? 'Generating...' : !isWalletInitialized ? 'Initializing...' : 'Generate Invoice'}
+            <ThemedText>{isGenerating ? 'Generating...' : !isWalletInitialized ? 'Initializing...' : 'Generate Invoice'}</ThemedText>
           </WideButton>
         </>
       ) : (
@@ -219,7 +228,7 @@ const ReceiveLightning: React.FC = () => {
               marginBottom: '15px',
             }}
           >
-            <span style={{ fontSize: 18 }}>Scan the QR code or copy the invoice below</span>
+            <ThemedText style={{ fontSize: 18 }}>Scan the QR code or copy the invoice below</ThemedText>
           </div>
 
           <div
@@ -242,8 +251,8 @@ const ReceiveLightning: React.FC = () => {
           </div>
 
           <div style={{ margin: '20px 0', textAlign: 'center' }}>
-            <p style={{ color: 'gray', fontSize: '16px' }}>Amount: {amount} sats</p>
-            {feesSat !== null && <p style={{ color: 'gray', fontSize: '14px' }}>Network Fee: {feesSat} sats</p>}
+            <ThemedText style={{ color: 'gray', fontSize: '16px' }}>Amount: {amount} sats</ThemedText>
+            {feesSat !== null && <ThemedText style={{ color: 'gray', fontSize: '14px' }}>Network Fee: {feesSat} sats</ThemedText>}
           </div>
 
           <WideButton
@@ -254,10 +263,12 @@ const ReceiveLightning: React.FC = () => {
             }}
             style={{ marginBottom: '10px' }}
           >
-            Generate New Invoice
+            <ThemedText>Generate New Invoice</ThemedText>
           </WideButton>
 
-          <WideButton onClick={() => navigate('/')}>Back to Wallet</WideButton>
+          <WideButton onClick={() => navigate('/')}>
+            <ThemedText>Back to Wallet</ThemedText>
+          </WideButton>
         </>
       )}
 

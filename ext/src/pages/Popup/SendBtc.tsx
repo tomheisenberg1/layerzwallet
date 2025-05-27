@@ -23,6 +23,7 @@ import ClipboardBackdoor from './components/ClipboardBackdoor';
 import { formatBalance } from '@shared/modules/string-utils';
 import { withRetry } from '@shared/modules/tenacity';
 import { SecureStorage } from '../../class/secure-storage';
+import { ThemedText } from '../../components/ThemedText';
 import { ENCRYPTED_PREFIX, STORAGE_KEY_MNEMONIC } from '@shared/types/IStorage';
 import { LayerzStorage } from '../../class/layerz-storage';
 import { Csprng } from '../../class/rng';
@@ -212,18 +213,22 @@ const SendBtc: React.FC = () => {
     return (
       <div style={{ textAlign: 'center', padding: '20px' }}>
         <div style={{ color: '#4CAF50', fontSize: '48px', marginBottom: '20px' }}>✓</div>
-        <h2 style={{ color: '#4CAF50', marginBottom: '15px' }}>Sent!</h2>
-        <p style={{ color: '#666', marginBottom: '20px' }}>Your {getTickerByNetwork(network)} are on their way</p>
-        <WideButton onClick={() => navigate('/')}>Back to Wallet</WideButton>
+        <ThemedText type="headline" style={{ color: '#4CAF50', marginBottom: '15px' }}>
+          Sent!
+        </ThemedText>
+        <ThemedText style={{ color: '#666', marginBottom: '20px' }}>Your {getTickerByNetwork(network)} are on their way</ThemedText>
+        <WideButton onClick={() => navigate('/')}>
+          <ThemedText>Back to Wallet</ThemedText>
+        </WideButton>
       </div>
     );
   }
 
   return (
     <div>
-      <h2>Send {getTickerByNetwork(network)}</h2>
+      <ThemedText type="headline">Send {getTickerByNetwork(network)}</ThemedText>
       <div style={{ textAlign: 'left' }}>
-        <b>Recipient</b>
+        <ThemedText type="defaultSemiBold">Recipient</ThemedText>
         <div style={{ marginBottom: '10px' }}></div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Input
@@ -270,13 +275,13 @@ const SendBtc: React.FC = () => {
       </div>
       <hr />
       <div style={{ textAlign: 'left' }}>
-        <b>Amount</b>
+        <ThemedText type="defaultSemiBold">Amount</ThemedText>
         <div style={{ marginBottom: '10px' }}></div>
         <Input type="number" data-testid="amount-input" placeholder="0.00" onChange={(event) => setAmount(event.target.value)} value={amount} />
         <div style={{ color: 'gray', width: '100%', marginBottom: '15px' }}>
-          <span style={{ fontSize: 16 }}>
+          <ThemedText style={{ fontSize: 16 }}>
             Available balance: {balance ? formatBalance(balance, getDecimalsByNetwork(network), 8) : ''} {getTickerByNetwork(network)}
-          </span>
+          </ThemedText>
         </div>
       </div>
 
@@ -284,17 +289,17 @@ const SendBtc: React.FC = () => {
       <div style={{ width: '100%' }}>
         {error ? (
           <div style={{ color: 'red', width: '100%', marginBottom: '15px' }}>
-            <span style={{ fontSize: 16 }}>{error}</span>
+            <ThemedText style={{ fontSize: 16 }}>{error}</ThemedText>
           </div>
         ) : null}
 
-        {sendState === 'preparing' ? <span>loading...</span> : null}
+        {sendState === 'preparing' ? <ThemedText>loading...</ThemedText> : null}
 
         {sendState === 'idle' ? (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
-            <span style={{ color: 'gray', fontSize: '16px' }}>
-              Network Fee: {feeRate} sats/vbyte{feeRateOptions[feeRate] && <span> ({feeRateOptions[feeRate]} sats)</span>}
-            </span>
+            <ThemedText style={{ color: 'gray', fontSize: '16px' }}>
+              Network Fee: {feeRate} sats/vbyte{feeRateOptions[feeRate] && <ThemedText style={{ display: 'inline' }}> ({feeRateOptions[feeRate]} sats)</ThemedText>}
+            </ThemedText>
             <Button data-testid="change-fee-button" onClick={() => setShowFeeModal(true)}>
               Change Fee
             </Button>

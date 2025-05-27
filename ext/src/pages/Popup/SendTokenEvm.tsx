@@ -3,6 +3,7 @@ import { HodlButton, Input, SelectFeeSlider, WideButton } from './DesignSystem';
 import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { DEFAULT_NETWORK } from '@shared/config';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
+import { ThemedText } from '../../components/ThemedText';
 import { getDecimalsByNetwork, getTickerByNetwork } from '@shared/models/network-getters';
 import { SendIcon } from 'lucide-react';
 import BigNumber from 'bignumber.js';
@@ -209,7 +210,7 @@ const SendTokenEvm: React.FC = () => {
                     />
                   </td>
                   <td>
-                    <span style={{ color: 'gray', fontSize: '16px' }}>{overpayMultiplier}x</span>
+                    <ThemedText color="gray">{overpayMultiplier}x</ThemedText>
                   </td>
                 </tr>
               </tbody>

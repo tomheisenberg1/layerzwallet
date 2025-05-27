@@ -3,6 +3,7 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { BackgroundCaller } from '../../modules/background-caller';
 import { Button, Input } from './DesignSystem';
+import { ThemedText } from '../../components/ThemedText';
 
 export default function OnboardingCreatePassword() {
   const navigate = useNavigate();
@@ -43,21 +44,27 @@ export default function OnboardingCreatePassword() {
 
   return (
     <div>
-      <h2>Create your password</h2>
-      <p>Enter password to secure & lock your wallet</p>
+      <ThemedText type="headline">Create your password</ThemedText>
+      <ThemedText type="paragraph">Enter password to secure & lock your wallet</ThemedText>
       <br />
 
       {isLoading ? (
-        <div>Loading...</div>
+        <div>
+          <ThemedText>Loading...</ThemedText>
+        </div>
       ) : (
         <div>
           <Input type="password" name="password" placeholder="Type password" onChange={onPass1Change} />
           <Input type="password" name="password_repeat" placeholder="Confirm password" onChange={onPass2Change} />
-          {!!validationError && <div>{validationError}</div>}
+          {!!validationError && (
+            <div>
+              <ThemedText style={{ color: 'red' }}>{validationError}</ThemedText>
+            </div>
+          )}
           <br />
           <br />
           <Button onClick={handleSavePassword} disabled={!arePasswordsEqual || isLoading}>
-            Set password
+            <ThemedText>Set password</ThemedText>
           </Button>
         </div>
       )}
