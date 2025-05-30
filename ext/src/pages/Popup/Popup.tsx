@@ -3,12 +3,6 @@ import React, { useCallback, useContext } from 'react';
 import { Navigate, Route, HashRouter as Router, Routes, useNavigate } from 'react-router';
 import { SWRConfig } from 'swr';
 import '../../modules/breeze-adapter'; // needed to be imported before we can use BreezWallet
-
-import { Hello } from '@shared/class/hello';
-import { AccountNumberContextProvider } from '@shared/hooks/AccountNumberContext';
-import { EStep, InitializationContext, InitializationContextProvider } from '@shared/hooks/InitializationContext';
-import { NetworkContextProvider } from '@shared/hooks/NetworkContext';
-
 import { Hello } from '@shared/class/hello';
 import { AccountNumberContextProvider } from '@shared/hooks/AccountNumberContext';
 import { EStep, InitializationContext, InitializationContextProvider } from '@shared/hooks/InitializationContext';
@@ -29,10 +23,8 @@ import OnboardingTos from './OnboardingTos';
 import './Popup.css';
 import Receive from './Receive';
 import ReceiveBreez from './ReceiveBreez';
-import ReceiveBreez from './ReceiveBreez';
 import ReceiveLightning from './ReceiveLightning';
 import SendArk from './SendArk';
-import SendBreez from './SendBreez';
 import SendBreez from './SendBreez';
 import SendBtc from './SendBtc';
 import SendEvm from './SendEvm';
