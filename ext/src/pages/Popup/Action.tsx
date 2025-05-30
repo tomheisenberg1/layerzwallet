@@ -8,6 +8,7 @@ import { BackgroundCaller } from '../../modules/background-caller';
 import { EthRequestAccounts } from './ActionComponents/EthRequestAccounts';
 import { EthSignTypedData } from './ActionComponents/EthSignTypedData';
 import { PersonalSign } from './ActionComponents/PersonalSign';
+import { ThemedText } from '../../components/ThemedText';
 import { SendTransaction } from './ActionComponents/SendTransaction';
 import { SwitchEthereumChain } from './ActionComponents/SwitchEthereumChain';
 import { WalletRequestPermissions } from './ActionComponents/WalletRequestPermissions';
@@ -67,7 +68,11 @@ const Action: React.FC = () => {
   const renderMethodComponent = () => {
     switch (method) {
       case 'Loading':
-        return <div>Loading...</div>;
+        return (
+          <div>
+            <ThemedText>Loading...</ThemedText>
+          </div>
+        );
       case 'wallet_switchEthereumChain':
         return <SwitchEthereumChain params={params} id={id} from={from} />;
       case 'personal_sign':
@@ -81,13 +86,17 @@ const Action: React.FC = () => {
       case 'eth_requestAccounts':
         return <EthRequestAccounts params={params} id={id} from={from} />;
       default:
-        return <div>Unknown method: {method}</div>;
+        return (
+          <div>
+            <ThemedText>Unknown method: {method}</ThemedText>
+          </div>
+        );
     }
   };
 
   return (
     <div>
-      <h2>Action required</h2>
+      <ThemedText type="headline">Action required</ThemedText>
       {renderMethodComponent()}
     </div>
   );

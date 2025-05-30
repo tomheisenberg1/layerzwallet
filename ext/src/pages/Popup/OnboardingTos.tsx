@@ -4,6 +4,7 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { BackgroundCaller } from '../../modules/background-caller';
 import { Button } from './DesignSystem';
+import { ThemedText } from '../../components/ThemedText';
 
 const OnboardingIntro: React.FC = () => {
   const navigate = useNavigate();
@@ -13,17 +14,23 @@ const OnboardingIntro: React.FC = () => {
 
   return (
     <div>
-      <h2>Terms of service</h2>
+      <ThemedText type="headline">Terms of service</ThemedText>
 
       <div>
-        This software is provided as a Developer Preview for testing and evaluation purposes only. It is offered "as is" without any warranties, express or implied. The author assumes no liability or
-        responsibility for any loss, damages, or issues arising from its use, including but not limited to financial loss or data security breaches. By using this software, you acknowledge that it is
-        a non-custodial tool and accept full responsibility for managing your own Bitcoin and private keys. Use at your own risk.
+        <ThemedText type="paragraph">
+          This software is provided as a Developer Preview for testing and evaluation purposes only. It is offered "as is" without any warranties, express or implied. The author assumes no liability
+          or responsibility for any loss, damages, or issues arising from its use, including but not limited to financial loss or data security breaches. By using this software, you acknowledge that
+          it is a non-custodial tool and accept full responsibility for managing your own Bitcoin and private keys. Use at your own risk.
+        </ThemedText>
       </div>
 
       <br />
 
-      {showWarning && <div style={{ color: 'red', marginBottom: '10px' }}>It's impossible to continue without accepting the Terms of Service.</div>}
+      {showWarning && (
+        <div style={{ color: 'red', marginBottom: '10px' }}>
+          <ThemedText>It's impossible to continue without accepting the Terms of Service.</ThemedText>
+        </div>
+      )}
 
       <Button
         onClick={async () => {
@@ -34,7 +41,7 @@ const OnboardingIntro: React.FC = () => {
           navigate('/');
         }}
       >
-        Accept Terms
+        <ThemedText>Accept Terms</ThemedText>
       </Button>
       <span> </span>
       <Button
@@ -42,7 +49,7 @@ const OnboardingIntro: React.FC = () => {
           setShowWarning(true);
         }}
       >
-        Do Not Accept
+        <ThemedText>Do Not Accept</ThemedText>
       </Button>
     </div>
   );

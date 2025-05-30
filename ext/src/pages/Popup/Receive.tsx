@@ -10,6 +10,7 @@ import { StringNumber } from '@shared/types/string-number';
 import BigNumber from 'bignumber.js';
 import { useNavigate } from 'react-router';
 import { formatBalance } from '@shared/modules/string-utils';
+import { ThemedText } from '../../components/ThemedText';
 
 const Receive: React.FC = () => {
   const navigate = useNavigate();
@@ -58,12 +59,14 @@ const Receive: React.FC = () => {
   if (isNewBalanceGT()) {
     return (
       <div style={{ position: 'relative' }}>
-        <h2>Receive on {network.charAt(0).toUpperCase() + network.slice(1)}</h2>
+        <ThemedText type="headline">Receive on {network.charAt(0).toUpperCase() + network.slice(1)}</ThemedText>
 
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <div style={{ color: '#4CAF50', fontSize: '48px', marginBottom: '20px' }}>✓</div>
           <h2 style={{ color: '#4CAF50', marginBottom: '15px' }}>
-            Received: +{isNewBalanceGT() ? formatBalance(String(isNewBalanceGT()), getDecimalsByNetwork(network), 8) : ''} {getTickerByNetwork(network)}
+            <ThemedText type="headline">
+              Received: +{isNewBalanceGT() ? formatBalance(String(isNewBalanceGT()), getDecimalsByNetwork(network), 8) : ''} {getTickerByNetwork(network)}
+            </ThemedText>
           </h2>
           {getExplorerUrlByNetwork(network) ? (
             <a
@@ -84,7 +87,7 @@ const Receive: React.FC = () => {
               onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
               onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              View on Explorer
+              <ThemedText>View on Explorer</ThemedText>
             </a>
           ) : null}
           <WideButton onClick={() => navigate('/')}>Back to Wallet</WideButton>
@@ -95,7 +98,7 @@ const Receive: React.FC = () => {
 
   return (
     <div style={{ position: 'relative' }}>
-      <h2>Receive on {network.charAt(0).toUpperCase() + network.slice(1)}</h2>
+      <ThemedText type="headline">Receive on {network.charAt(0).toUpperCase() + network.slice(1)}</ThemedText>
       <div
         style={{
           color: 'gray',
@@ -104,7 +107,7 @@ const Receive: React.FC = () => {
           marginBottom: '15px',
         }}
       >
-        <span style={{ fontSize: 18 }}>Scan the QR code or copy the address below</span>
+        <ThemedText style={{ fontSize: 18 }}>Scan the QR code or copy the address below</ThemedText>
       </div>
       <div
         style={{
@@ -140,7 +143,7 @@ const Receive: React.FC = () => {
           onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
           onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
         >
-          View on Explorer
+          <ThemedText>View on Explorer</ThemedText>
         </a>
       ) : null}
 

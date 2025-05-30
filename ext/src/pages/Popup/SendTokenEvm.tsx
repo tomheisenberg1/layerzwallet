@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import { SendIcon } from 'lucide-react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-
+import { ThemedText } from '../../components/ThemedText';
 import { EvmWallet } from '@shared/class/evm-wallet';
 import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
@@ -208,7 +208,7 @@ const SendTokenEvm: React.FC = () => {
                     />
                   </td>
                   <td>
-                    <span style={{ color: 'gray', fontSize: '16px' }}>{overpayMultiplier}x</span>
+                    <ThemedText color="gray">{overpayMultiplier}x</ThemedText>
                   </td>
                 </tr>
               </tbody>

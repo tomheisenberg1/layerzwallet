@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router';
 import { Csprng } from '../../class/rng';
 import { decrypt, encrypt } from '../../modules/encryption';
 import { Button, Select } from './DesignSystem';
+import { ThemedText } from '../../components/ThemedText';
 
 const pck = require('../../../package.json');
 
@@ -32,10 +33,10 @@ const SettingsPage: React.FC = () => {
 
   return (
     <div>
-      <h1>Settings</h1>
+      <ThemedText type="headline">Settings</ThemedText>
 
       <div style={{ textAlign: 'left', fontSize: '16px' }}>
-        <span>Switch account:</span>
+        <ThemedText>Switch account:</ThemedText>
         <div style={{ marginBottom: '20px', marginTop: '5px' }}>
           <Select value={accountNumber} id="account-select" onChange={(e) => setSelectedAccount(e.target.value)}>
             <option value={0}>Account 0</option>
@@ -47,10 +48,12 @@ const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ fontSize: '12px' }}>{pck.name + ' v' + pck.version}</div>
+      <div style={{ fontSize: '12px' }}>
+        <ThemedText>{pck.name + ' v' + pck.version}</ThemedText>
+      </div>
 
       <a href="https://github.com/layerztec/bugtracker/issues" target="_blank" rel="noopener noreferrer">
-        Bugtracker
+        <ThemedText type="link">Bugtracker</ThemedText>
       </a>
 
       <br />

@@ -10,10 +10,10 @@ import { getDecimalsByNetwork, getIsTestnet, getKnowMoreUrl, getTickerByNetwork 
 import { capitalizeFirstLetter, formatBalance, formatFiatBalance } from '@shared/modules/string-utils';
 import { getAvailableNetworks, NETWORK_ARKMUTINYNET, NETWORK_BITCOIN, NETWORK_BREEZ, NETWORK_BREEZTESTNET, Networks } from '@shared/types/networks';
 import { BackgroundCaller } from '../../modules/background-caller';
-import BreezTokensView from './components/BreezTokensView';
 import PartnersView from './components/PartnersView';
 import TokensView from './components/TokensView';
 import { Button, Switch } from './DesignSystem';
+import BreezTokensView from './components/BreezTokensView';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();

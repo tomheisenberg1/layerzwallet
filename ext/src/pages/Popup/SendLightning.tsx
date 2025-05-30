@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { Scan, ZapIcon } from 'lucide-react';
 import React, { useContext, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { ThemedText } from '../../components/ThemedText';
 import { PrepareSendRequest, PrepareSendResponse, SendPaymentRequest } from '@breeztech/breez-sdk-liquid';
 
 import { BreezWallet } from '@shared/class/wallets/breez-wallet';
@@ -102,18 +103,24 @@ const SendLightning: React.FC = () => {
     return (
       <div style={{ textAlign: 'center', padding: '20px' }}>
         <div style={{ color: '#4CAF50', fontSize: '48px', marginBottom: '20px' }}>✓</div>
-        <h2 style={{ color: '#4CAF50', marginBottom: '15px' }}>Sent!</h2>
-        <p style={{ color: '#666', marginBottom: '20px' }}>{amountToSend ? formatBalance(amountToSend, 8, 8) : ''} sats have been sent</p>
-        <WideButton onClick={() => navigate('/')}>Back to Wallet</WideButton>
+        <h2 style={{ color: '#4CAF50', marginBottom: '15px' }}>
+          <ThemedText type="headline">Sent!</ThemedText>
+        </h2>
+        <p style={{ color: '#666', marginBottom: '20px' }}>
+          <ThemedText>{amountToSend ? formatBalance(amountToSend, 8, 8) : ''} sats have been sent</ThemedText>
+        </p>
+        <WideButton onClick={() => navigate('/')}>
+          <ThemedText>Back to Wallet</ThemedText>
+        </WideButton>
       </div>
     );
   }
 
   return (
     <div>
-      <h2>Send Lightning</h2>
+      <ThemedText type="headline">Send Lightning</ThemedText>
       <div style={{ textAlign: 'left' }}>
-        <b>Lightning Invoice</b>
+        <ThemedText type="defaultSemiBold">Lightning Invoice</ThemedText>
         <div style={{ marginBottom: '10px' }}></div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Input
@@ -176,7 +183,7 @@ const SendLightning: React.FC = () => {
         {sendState === 'idle' && (
           <WideButton data-testid="verify-payment-button" onClick={prepareTransaction} style={{ backgroundColor: '#FF9500' }}>
             <ZapIcon />
-            Verify Payment
+            <ThemedText>Verify Payment</ThemedText>
           </WideButton>
         )}
 
@@ -184,7 +191,7 @@ const SendLightning: React.FC = () => {
           <div>
             <HodlButton onHold={sendPayment} style={{ backgroundColor: '#FF9500' }}>
               <ZapIcon />
-              Hold to send payment
+              <ThemedText>Hold to send payment</ThemedText>
             </HodlButton>
 
             <button
@@ -199,7 +206,7 @@ const SendLightning: React.FC = () => {
                 marginTop: '10px',
               }}
             >
-              Cancel
+              <ThemedText>Cancel</ThemedText>
             </button>
           </div>
         )}
