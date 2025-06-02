@@ -1,17 +1,9 @@
 import * as React from 'react';
 import { Typography } from '@shared/constants/Typography';
 import { Colors } from '@shared/constants/Colors';
+import { WebThemedTextProps, TypographyKey } from '@shared/types/ThemedText';
 
-type TypographyKey = keyof typeof Typography;
-
-type TextVariant = { type: 'default' } | { type: 'title' } | { type: 'defaultSemiBold' } | { type: 'subtitle' } | { type: 'link' } | { type: keyof typeof Typography };
-
-export type ThemedTextProps = Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'> & { type?: TextVariant['type'] } & {
-  lightColor?: string;
-  darkColor?: string;
-  size?: number | string;
-  color?: string;
-};
+export type ThemedTextProps = Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'> & WebThemedTextProps;
 
 const baseStyles: React.CSSProperties = {
   fontFamily: 'Inter-Regular, sans-serif',
