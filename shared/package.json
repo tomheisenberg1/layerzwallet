@@ -1,0 +1,12 @@
+{
+  "name": "@layerzwallet/shared",
+  "private": true,
+  "dependencies": {
+    "bitcoinjs-lib": "^6.1.7",
+    "bignumber.js": "9.1.1",
+    "ethers": "^6.13.4"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3"
+  }
+}
