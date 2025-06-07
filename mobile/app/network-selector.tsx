@@ -5,14 +5,12 @@ import { ScrollView, StyleSheet, TouchableOpacity, useColorScheme } from 'react-
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { StatusBar } from 'expo-status-bar';
-
-import { ThemedText } from '../components/ThemedText';
-import { ThemedView } from '../components/ThemedView';
-import { Colors } from '../constants/Colors';
-import { getIsTestnet } from '../../shared/models/network-getters';
-import { getAvailableNetworks, Networks } from '../../shared/types/networks';
-import { NetworkContext } from '../../shared/hooks/NetworkContext';
-import { getNetworkIcon, getNetworkGradient } from '@/constants/Colors';
+import { getNetworkIcon, getNetworkGradient, Colors } from '@/constants/Colors';
+import { getAvailableNetworks, Networks } from '@shared/types/networks';
+import { NetworkContext } from '@shared/hooks/NetworkContext';
+import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from '@/components/ThemedText';
+import { getIsTestnet } from '@shared/models/network-getters';
 
 const NetworkSelectorModal: React.FC = () => {
   const router = useRouter();
