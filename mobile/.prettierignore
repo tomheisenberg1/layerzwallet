@@ -1,3 +1,6 @@
 # Ignore artifacts:
 build
 coverage
+
+# dont change the order of imports
+entry.js
