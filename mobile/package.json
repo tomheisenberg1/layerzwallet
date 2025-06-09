@@ -23,8 +23,8 @@
     "e2e": "maestro test .maestro/*",
     "unit": "vitest run ../shared/tests/unit-vi/",
     "integration": "vitest run ../shared/tests/integration-vi/",
-    "lint": "prettier '**/*.{js,jsx,ts,tsx,json,css,scss,md}' '../shared/**/*.{js,jsx,ts,tsx,json,css,scss,md}' --config ./.prettierrc --check && tsc --noEmit && eslint ./",
-    "lint:write": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}' '../shared/**/*.{js,jsx,ts,tsx,json,css,scss,md}' --config ./.prettierrc; eslint ./ --fix"
+    "lint": "prettier '**/*.{js,jsx,ts,tsx,json,css,scss,md}' '../shared/**/*.{js,jsx,ts,tsx,json,css,scss,md}' --config ./.prettierrc --check && tsc --noEmit && expo lint",
+    "lint:write": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}' '../shared/**/*.{js,jsx,ts,tsx,json,css,scss,md}' --config ./.prettierrc; expo lint --fix"
   },
   "jest": {
     "preset": "jest-expo"
@@ -107,9 +107,14 @@
     "@types/pbkdf2": "^3.1.2",
     "@types/react": "~19.0.10",
     "@types/react-test-renderer": "^19.0.0",
-    "eslint": "^8.57.0",
+    "eslint": "^9.28.0",
     "eslint-config-expo": "~9.2.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
+    "expo-dev-client": "~5.1.8",
     "jest": "^29.2.1",
+    "jest-expo": "~53.0.5",
+    "prettier": "^3.5.3",
     "jest-expo": "~53.0.7",
     "prettier": "^3.3.3",
     "react-test-renderer": "19.0.0",

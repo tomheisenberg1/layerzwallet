@@ -1,14 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View, TextInput, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import LongPressButton from '@/components/LongPressButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import Slider from '@react-native-community/slider';
-import { TextInput } from 'react-native';
 
 import { Csprng } from '@/src/class/rng';
 import { SecureStorage } from '@/src/class/secure-storage';
@@ -29,7 +28,6 @@ import { Networks } from '@shared/types/networks';
 import { StringNumber } from '@shared/types/string-number';
 import assert from 'assert';
 import BigNumber from 'bignumber.js';
-import { Keyboard, TouchableWithoutFeedback } from 'react-native';
 
 export type SendTokenEvmProps = {
   contractAddress: string;
