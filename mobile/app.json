@@ -5,14 +5,28 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/ios_1024x1024.png",
-    "scheme": "myapp",
+    "scheme": ["layerzwallet", "bitcoin", "liquidnetwork"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.layerzwallet.mobile",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "layerzwallet",
+            "CFBundleURLSchemes": ["layerzwallet"]
+          },
+          {
+            "CFBundleURLName": "bitcoin",
+            "CFBundleURLSchemes": ["bitcoin"]
+          },
+          {
+            "CFBundleURLName": "liquidnetwork", 
+            "CFBundleURLSchemes": ["liquidnetwork"]
+          }
+        ]
       },
       "icon": "./assets/images/ios_1024x1024.png",
       "icons": {
@@ -34,6 +48,23 @@
       "edgeToEdgeEnabled": true,
       "permissions": ["android.permission.CAMERA"],
       "package": "com.layerzwallet.mobile",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "bitcoin"
+            },
+            {
+              "scheme": "liquidnetwork"
+            },
+            {
+              "scheme": "layerzwallet"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
       "icon": "./assets/images/android_512x512.png",
       "icons": [
         {
@@ -92,6 +123,23 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "linking": {
+      "prefixes": [
+        "bitcoin:",
+        "liquidnetwork:",
+        "layerzwallet://"
+      ],
+      "config": {
+        "screens": {
+          "SendBtc": {
+            "path": "/send-bitcoin/:address?"
+          },
+          "SendLiquid": {
+            "path": "/send-liquid/:address?"
+          }
+        }
+      }
     },
     "extra": {
       "router": {
