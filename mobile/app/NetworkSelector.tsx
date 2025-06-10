@@ -10,7 +10,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { getIsTestnet } from '@shared/models/network-getters';
 import { Colors, getNetworkGradient, getNetworkIcon } from '@shared/constants/Colors';
 
-const NetworkSelectorModal: React.FC = () => {
+const NetworkSelector: React.FC = () => {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const { network: currentNetwork, setNetwork } = useContext(NetworkContext);
@@ -278,5 +278,5 @@ const Header = () => (
   </ThemedView>
 );
 
-export default NetworkSelectorModal;
+export default NetworkSelector;
 export { Header };

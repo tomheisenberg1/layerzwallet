@@ -125,7 +125,7 @@ export default function IndexScreen() {
         </ThemedView>
 
         <ThemedView style={styles.networkContainer}>
-          <TouchableOpacity onPress={() => router.push('/network-selector')} testID="NetworkSwitcherTrigger" activeOpacity={0.6}>
+          <TouchableOpacity onPress={() => router.push('/NetworkSelector')} testID="NetworkSwitcherTrigger" activeOpacity={0.6}>
             <Animated.View style={styles.networkCard} testID={`selectedNetwork-${network}`}>
               <ThemedView style={styles.networkCardTouchable}>
                 <ThemedView
