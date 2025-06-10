@@ -3,12 +3,12 @@ import { useRouter } from 'expo-router';
 import React, { useContext, useRef, useLayoutEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { getNetworkIcon, getNetworkGradient, Colors } from '@/constants/Colors';
 import { getAvailableNetworks, Networks } from '@shared/types/networks';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { getIsTestnet } from '@shared/models/network-getters';
+import { Colors, getNetworkGradient, getNetworkIcon } from '@shared/constants/Colors';
 
 const NetworkSelectorModal: React.FC = () => {
   const router = useRouter();
