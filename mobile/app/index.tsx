@@ -24,7 +24,7 @@ import { useExchangeRate } from '@shared/hooks/useExchangeRate';
 import { OnrampProps } from '@/app/Onramp';
 import BreezTokensView from '@/components/BreezTokensView';
 import { fiatOnRamp } from '@shared/models/fiat-on-ramp';
-import { getNetworkGradient, getNetworkIcon } from '@/constants/Colors';
+import { getNetworkGradient, getNetworkIcon } from '@shared/constants/Colors';
 
 export default function IndexScreen() {
   const { network } = useContext(NetworkContext);
