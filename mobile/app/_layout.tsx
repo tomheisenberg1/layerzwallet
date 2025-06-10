@@ -16,6 +16,7 @@ import { SwrCacheProvider } from '@/src/class/swr-cache-provider';
 import { ScanQrContextProvider } from '@/src/hooks/ScanQrContext';
 import { LayerzStorage } from '@/src/class/layerz-storage';
 import { BackgroundExecutor } from '@/src/modules/background-executor';
+import { Header } from './network-selector';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -87,9 +88,10 @@ export default function RootLayout() {
                   <Stack.Screen
                     name="network-selector"
                     options={{
-                      presentation: 'transparentModal',
-                      animation: 'none',
-                      headerShown: false,
+                      presentation: 'formSheet',
+                      sheetAllowedDetents: [0.66, 1.0],
+                      header: () => <Header />,
+                      sheetGrabberVisible: true,
                     }}
                   />
                   <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />

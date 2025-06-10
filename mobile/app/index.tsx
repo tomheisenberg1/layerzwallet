@@ -194,12 +194,6 @@ export default function IndexScreen() {
           <ThemedText style={styles.balanceText} adjustsFontSizeToFit numberOfLines={1}>
             {balance ? formatBalance(balance, getDecimalsByNetwork(network)) + ' ' + getTickerByNetwork(network) : '???'}
           </ThemedText>
-          {(network === NETWORK_BREEZ || network === NETWORK_BREEZTESTNET) && (
-            <>
-              <ThemedText style={styles.balanceLabel}>Active Tokens:</ThemedText>
-              <ThemedText style={styles.balanceText}>0</ThemedText>
-            </>
-          )}
           <ThemedText adjustsFontSizeToFit numberOfLines={1}>
             {balance && +balance > 0 && exchangeRate ? '$' + formatFiatBalance(balance, getDecimalsByNetwork(network), exchangeRate) : ''}
           </ThemedText>

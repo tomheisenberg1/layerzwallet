@@ -16,7 +16,6 @@ appId: com.layerzwallet.mobile
 
 # Verify the network modal is displayed
 - assertVisible: "Select Network"
-- assertVisible: "Choose your preferred network to interact with"
 
 # Test selecting different networks
 # Select Rootstock
@@ -33,14 +32,14 @@ appId: com.layerzwallet.mobile
     id: "NetworkSwitcherTrigger"
 - waitForAnimationToEnd
 
-# Switch back to Bitcoin
+# Switch to Botanix
 - tapOn:
-    id: "network-bitcoin"
+    id: "network-botanix"
 - waitForAnimationToEnd
 
-# Verify Bitcoin is selected again
+# Verify Botanix is selected again
 - assertVisible:
-    id: "selectedNetwork-bitcoin"
+    id: "selectedNetwork-botanix"
 
 # Test closing modal without selection
 - tapOn:
@@ -51,6 +50,6 @@ appId: com.layerzwallet.mobile
     point: "50%,20%"  # Tap on background
 - waitForAnimationToEnd
 
-# Verify we're still on Bitcoin
+# Verify we're still on Botanix
 - assertVisible:
-    id: "selectedNetwork-bitcoin"
+    id: "selectedNetwork-botanix"

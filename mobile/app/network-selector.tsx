@@ -1,10 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useContext, useRef, useEffect } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { BlurView } from 'expo-blur';
-import { StatusBar } from 'expo-status-bar';
+import React, { useContext, useRef, useLayoutEffect } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { getNetworkIcon, getNetworkGradient, Colors } from '@/constants/Colors';
 import { getAvailableNetworks, Networks } from '@shared/types/networks';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
@@ -17,33 +15,27 @@ const NetworkSelectorModal: React.FC = () => {
   const colorScheme = useColorScheme();
   const { network: currentNetwork, setNetwork } = useContext(NetworkContext);
   const networks = getAvailableNetworks();
-  const scrollViewRef = useRef<ScrollView>(null);
+  const flatListRef = useRef<FlatList>(null);
 
   // Auto-scroll to selected network when modal appears
-  useEffect(() => {
+  useLayoutEffect(() => {
     const scrollToSelectedNetwork = () => {
       const selectedIndex = networks.findIndex((network) => network === currentNetwork);
 
-      if (selectedIndex !== -1 && scrollViewRef.current) {
-        const cardHeight = 84;
-        const headerOffset = 100;
-        const targetPosition = selectedIndex * cardHeight;
-
-        scrollViewRef.current?.scrollTo({
-          y: Math.max(0, targetPosition - headerOffset),
+      if (selectedIndex !== -1 && flatListRef.current) {
+        flatListRef.current?.scrollToIndex({
+          index: selectedIndex,
+          animated: false,
         });
       }
     };
 
-    scrollToSelectedNetwork();
+    const timer = setTimeout(scrollToSelectedNetwork, 100);
+    return () => clearTimeout(timer);
   }, [currentNetwork, networks]);
 
   const handleNetworkSelect = (network: Networks) => {
     setNetwork(network);
-    router.back();
-  };
-
-  const handleClose = () => {
     router.back();
   };
 
@@ -53,31 +45,31 @@ const NetworkSelectorModal: React.FC = () => {
     const isTestnet = getIsTestnet(availableNetwork);
     const gradientColors = getNetworkGradient(availableNetwork);
 
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: scale.value }],
-    }));
-
     const handlePressIn = () => {
-      scale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
+      scale.value = withSpring(0.98, { damping: 20, stiffness: 400 });
     };
 
     const handlePressOut = () => {
-      scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+      scale.value = withSpring(1, { damping: 20, stiffness: 400 });
     };
 
     const handlePress = () => {
       handleNetworkSelect(availableNetwork);
     };
 
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: scale.value }],
+    }));
+
     return (
-      <Animated.View entering={FadeIn.delay(100).duration(300)} exiting={FadeOut.duration(200)} style={animatedStyle}>
+      <Animated.View style={[{ marginBottom: 12 }, animatedStyle]}>
         <TouchableOpacity
           testID={isSelected ? `selectedNetwork-${availableNetwork}` : `network-${availableNetwork}`}
           style={[styles.networkCard, isSelected && styles.selectedNetworkCard]}
           onPress={handlePress}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
-          activeOpacity={0.7}
+          activeOpacity={1}
         >
           <ThemedView style={styles.networkCardContent}>
             <ThemedView
@@ -106,7 +98,7 @@ const NetworkSelectorModal: React.FC = () => {
             </ThemedView>
 
             {isSelected && (
-              <Animated.View style={styles.selectedIndicator} entering={FadeIn.duration(200).springify()} exiting={FadeOut.duration(150)}>
+              <Animated.View style={styles.selectedIndicator}>
                 <ThemedView style={styles.checkmarkContainer}>
                   <Ionicons name="checkmark" size={16} color="white" />
                 </ThemedView>
@@ -114,77 +106,45 @@ const NetworkSelectorModal: React.FC = () => {
             )}
           </ThemedView>
 
-          {isSelected && <Animated.View style={[styles.selectionLine, { backgroundColor: gradientColors[0] }]} entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)} />}
+          {isSelected && <Animated.View style={[styles.selectionLine, { backgroundColor: gradientColors[0] }]} />}
         </TouchableOpacity>
       </Animated.View>
     );
   };
 
   return (
-    <>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-
-      <Animated.View style={StyleSheet.absoluteFillObject} entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
-        <BlurView intensity={80} style={StyleSheet.absoluteFillObject}>
-          <TouchableOpacity style={StyleSheet.absoluteFillObject} onPress={handleClose} activeOpacity={1} />
-        </BlurView>
-      </Animated.View>
-
-      <Animated.View style={styles.modalContainer} entering={SlideInDown.duration(300).springify().damping(15)} exiting={SlideOutDown.duration(250).springify().damping(20)}>
-        <ThemedView style={styles.contentContainer}>
-          {/* Header */}
-          <ThemedView style={styles.header}>
-            <ThemedView style={styles.headerContent}>
-              <Ionicons name="grid" size={24} color={Colors.light.icon} />
-              <ThemedText style={styles.title}>Select Network</ThemedText>
-            </ThemedView>
-            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-              <ThemedView style={styles.closeButtonContainer}>
-                <Ionicons name="close" size={20} color="#374151" />
-              </ThemedView>
-            </TouchableOpacity>
-          </ThemedView>
-
-          <ScrollView ref={scrollViewRef} style={styles.networkList} showsVerticalScrollIndicator={false} contentContainerStyle={styles.networkListContent}>
-            {networks.map((availableNetwork) => (
-              <AnimatedNetworkCard key={availableNetwork} network={availableNetwork} />
-            ))}
-          </ScrollView>
-
-          <ThemedView style={styles.footer}>
-            <ThemedText style={styles.footerText}>Choose your preferred network to interact with</ThemedText>
-          </ThemedView>
-        </ThemedView>
-      </Animated.View>
-    </>
+    <FlatList
+      ref={flatListRef}
+      automaticallyAdjustsScrollIndicatorInsets
+      automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      contentInset={{ top: 0, left: 0, bottom: 100, right: 0 }}
+      contentInsetAdjustmentBehavior="automatic"
+      data={networks}
+      testID="network-selector-list"
+      renderItem={({ item: availableNetwork }) => <AnimatedNetworkCard key={availableNetwork} network={availableNetwork} />}
+      nestedScrollEnabled
+      keyExtractor={(item) => item}
+      style={styles.networkList}
+      contentContainerStyle={styles.networkListContent}
+      onScrollToIndexFailed={(info) => {
+        const wait = new Promise((resolve) => setTimeout(resolve, 500));
+        wait.then(() => {
+          flatListRef.current?.scrollToIndex({ index: info.index, animated: true });
+        });
+      }}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  contentContainer: {
-    minHeight: '66%',
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingTop: 36,
+    paddingBottom: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
@@ -201,20 +161,14 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 4,
   },
-  closeButtonContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F3F4F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+
   networkList: {
-    flex: 1,
+    backgroundColor: '#FFFFFF',
   },
   networkListContent: {
     padding: 24,
     gap: 12,
+    backgroundColor: '#FFFFFF',
   },
   networkCard: {
     backgroundColor: '#FFFFFF',
@@ -315,4 +269,14 @@ const styles = StyleSheet.create({
   },
 });
 
+const Header = () => (
+  <ThemedView style={styles.header}>
+    <ThemedView style={styles.headerContent}>
+      <Ionicons name="grid" size={24} color={Colors.light.icon} />
+      <ThemedText style={styles.title}>Select Network</ThemedText>
+    </ThemedView>
+  </ThemedView>
+);
+
 export default NetworkSelectorModal;
+export { Header };
