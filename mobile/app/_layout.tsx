@@ -17,7 +17,7 @@ import { SwrCacheProvider } from '@/src/class/swr-cache-provider';
 import { ScanQrContextProvider } from '@/src/hooks/ScanQrContext';
 import { LayerzStorage } from '@/src/class/layerz-storage';
 import { BackgroundExecutor } from '@/src/modules/background-executor';
-import { Header } from './network-selector';
+import { Header } from '../components/network-selector';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
