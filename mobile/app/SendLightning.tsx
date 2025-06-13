@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import LongPressButton from '@/components/LongPressButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { AskMnemonicContext } from '@/src/hooks/AskMnemonicContext';
 import { ScanQrContext } from '@/src/hooks/ScanQrContext';
 import { BackgroundExecutor } from '@/src/modules/background-executor';
 import { getBreezNetwork } from '@/src/modules/breeze-adapter';
@@ -17,10 +18,11 @@ import { BreezWallet } from '@shared/class/wallets/breez-wallet';
 import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
 import { formatBalance } from '@shared/modules/string-utils';
-import { NETWORK_BREEZ, NETWORK_BREEZTESTNET } from '@shared/types/networks';
+import { NETWORK_LIQUID, NETWORK_LIQUIDTESTNET } from '@shared/types/networks';
 
 const SendLightning = () => {
   const { scanQr } = useContext(ScanQrContext);
+  const { askMnemonic } = useContext(AskMnemonicContext);
   const navigation = useNavigation();
   const [invoice, setInvoice] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -30,7 +32,7 @@ const SendLightning = () => {
   const [preparedResponse, setPreparedResponse] = useState<PrepareSendResponse | null>(null);
   const [feeSats, setFeeSats] = useState<number | null>(null);
   const [amountToSend, setAmountToSend] = useState<string>('');
-  const network = useContext(NetworkContext).network as typeof NETWORK_BREEZ | typeof NETWORK_BREEZTESTNET;
+  const network = useContext(NetworkContext).network as typeof NETWORK_LIQUID | typeof NETWORK_LIQUIDTESTNET;
   const { accountNumber } = useContext(AccountNumberContext);
   const breezWallet = useRef<BreezWallet | null>(null);
 
@@ -86,6 +88,7 @@ const SendLightning = () => {
         throw new Error('Transaction not properly prepared');
       }
 
+      await askMnemonic(); // verify password
       const sendRequest: SendPaymentRequest = {
         prepareResponse: preparedResponse,
       };

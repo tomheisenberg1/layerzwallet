@@ -8,20 +8,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import LongPressButton from '@/components/LongPressButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Csprng } from '@/src/class/rng';
-import { SecureStorage } from '@/src/class/secure-storage';
-import { AskPasswordContext } from '@/src/hooks/AskPasswordContext';
+import { AskMnemonicContext } from '@/src/hooks/AskMnemonicContext';
 import { ScanQrContext } from '@/src/hooks/ScanQrContext';
 import { BackgroundExecutor } from '@/src/modules/background-executor';
 import { getBreezNetwork } from '@/src/modules/breeze-adapter';
-import { decrypt } from '@/src/modules/encryption';
 import { BreezWallet, LBTC_ASSET_IDS } from '@shared/class/wallets/breez-wallet';
 import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
-import { getDeviceID } from '@shared/modules/device-id';
 import { formatBalance } from '@shared/modules/string-utils';
-import { ENCRYPTED_PREFIX, STORAGE_KEY_MNEMONIC } from '@shared/types/IStorage';
-import { NETWORK_BREEZ, NETWORK_BREEZTESTNET } from '@shared/types/networks';
+import { NETWORK_LIQUID, NETWORK_LIQUIDTESTNET } from '@shared/types/networks';
 
 export type SendLiquidParams = {
   assetId?: string; // Optional asset ID - if not provided, use L-BTC
@@ -31,10 +26,10 @@ const SendLiquid = () => {
   const router = useRouter();
   const params = useLocalSearchParams<SendLiquidParams>();
 
-  const network = useContext(NetworkContext).network as typeof NETWORK_BREEZ | typeof NETWORK_BREEZTESTNET;
+  const network = useContext(NetworkContext).network as typeof NETWORK_LIQUID | typeof NETWORK_LIQUIDTESTNET;
   const { accountNumber } = useContext(AccountNumberContext);
   const { scanQr } = useContext(ScanQrContext);
-  const { askPassword } = useContext(AskPasswordContext);
+  const { askMnemonic } = useContext(AskMnemonicContext);
 
   const [address, setAddress] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
@@ -53,7 +48,7 @@ const SendLiquid = () => {
   const assetId = useMemo(() => {
     if (params.assetId) {
       return params.assetId;
-    } else if (network === NETWORK_BREEZ) {
+    } else if (network === NETWORK_LIQUID) {
       return LBTC_ASSET_IDS.mainnet;
     } else {
       return LBTC_ASSET_IDS.testnet;
@@ -84,9 +79,9 @@ const SendLiquid = () => {
   }, [network, accountNumber, assetId]);
 
   const handleAmountChange = (text: string) => {
-    // Only allow numbers and decimal point
-    if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setAmount(text);
+    const normalizedText = text.replace(',', '.');
+    if (normalizedText === '' || /^\d*\.?\d*$/.test(normalizedText)) {
+      setAmount(normalizedText);
       setError('');
     }
   };
@@ -176,19 +171,7 @@ const SendLiquid = () => {
     setError('');
 
     try {
-      // Verify password first
-      const password = await askPassword();
-      const encryptedMnemonic = await SecureStorage.getItem(STORAGE_KEY_MNEMONIC);
-      if (!encryptedMnemonic.startsWith(ENCRYPTED_PREFIX)) {
-        throw new Error('Mnemonic not encrypted, reinstall the extension');
-      }
-
-      try {
-        await decrypt(encryptedMnemonic.replace(ENCRYPTED_PREFIX, ''), password, await getDeviceID(SecureStorage, Csprng));
-      } catch (_) {
-        throw new Error('Incorrect password');
-      }
-
+      await askMnemonic(); // verify password
       const mnemonic = await BackgroundExecutor.getSubMnemonic(accountNumber);
       const wallet = new BreezWallet(mnemonic, getBreezNetwork(network));
       await wallet.sendPayment({ prepareResponse: prepareResult });

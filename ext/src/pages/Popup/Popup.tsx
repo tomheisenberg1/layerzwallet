@@ -3,6 +3,7 @@ import React, { useCallback, useContext } from 'react';
 import { Navigate, Route, HashRouter as Router, Routes, useNavigate } from 'react-router';
 import { SWRConfig } from 'swr';
 import '../../modules/breeze-adapter'; // needed to be imported before we can use BreezWallet
+import '../../modules/spark-adapter'; // needed to be imported before we can use SparkWallet
 import { Hello } from '@shared/class/hello';
 import { AccountNumberContextProvider } from '@shared/hooks/AccountNumberContext';
 import { EStep, InitializationContext, InitializationContextProvider } from '@shared/hooks/InitializationContext';
@@ -10,6 +11,7 @@ import { NetworkContextProvider } from '@shared/hooks/NetworkContext';
 import { LayerzStorage } from '../../class/layerz-storage';
 import { SwrCacheProvider } from '../../class/swr-cache-provider';
 import { AskPasswordContextProvider } from '../../hooks/AskPasswordContext';
+import { AskMnemonicContextProvider } from '../../hooks/AskMnemonicContext';
 import { ScanQrContextProvider } from '../../hooks/ScanQrContext';
 import { BackgroundCaller } from '../../modules/background-caller';
 import Action from './Action';
@@ -76,9 +78,9 @@ const AppContent: React.FC = () => {
             <Route path="/test" element={<TestPage />} />
             <Route path="/home" element={<Home />} />
             <Route path="/receive" element={<Receive />} />
-            <Route path="/receive-breez" element={<ReceiveBreez />} />
+            <Route path="/receive-liquid" element={<ReceiveBreez />} />
             <Route path="/receive-lightning" element={<ReceiveLightning />} />
-            <Route path="/send-breez" element={<SendBreez />} />
+            <Route path="/send-liquid" element={<SendBreez />} />
             <Route path="/send-liquid" element={<SendLiquid />} />
             <Route path="/send-evm" element={<SendEvm />} />
             <Route path="/send-ark" element={<SendArk />} />
@@ -116,15 +118,17 @@ const Popup: React.FC = () => {
     <Router>
       <SWRConfig value={{ provider: () => new SwrCacheProvider() }}>
         <AskPasswordContextProvider>
-          <ScanQrContextProvider>
-            <InitializationContextProvider storage={LayerzStorage} backgroundCaller={BackgroundCaller}>
-              <AccountNumberContextProvider storage={LayerzStorage} backgroundCaller={BackgroundCaller}>
-                <NetworkContextProvider storage={LayerzStorage} backgroundCaller={BackgroundCaller}>
-                  <AppContent />
-                </NetworkContextProvider>
-              </AccountNumberContextProvider>
-            </InitializationContextProvider>
-          </ScanQrContextProvider>
+          <AskMnemonicContextProvider>
+            <ScanQrContextProvider>
+              <InitializationContextProvider storage={LayerzStorage} backgroundCaller={BackgroundCaller}>
+                <AccountNumberContextProvider storage={LayerzStorage} backgroundCaller={BackgroundCaller}>
+                  <NetworkContextProvider storage={LayerzStorage} backgroundCaller={BackgroundCaller}>
+                    <AppContent />
+                  </NetworkContextProvider>
+                </AccountNumberContextProvider>
+              </InitializationContextProvider>
+            </ScanQrContextProvider>
+          </AskMnemonicContextProvider>
         </AskPasswordContextProvider>
       </SWRConfig>
     </Router>

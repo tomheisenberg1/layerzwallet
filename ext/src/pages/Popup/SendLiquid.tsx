@@ -6,27 +6,21 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { BreezWallet, LBTC_ASSET_IDS } from '@shared/class/wallets/breez-wallet';
 import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
-import { getDeviceID } from '@shared/modules/device-id';
 import { formatBalance } from '@shared/modules/string-utils';
-import { ENCRYPTED_PREFIX, STORAGE_KEY_MNEMONIC } from '@shared/types/IStorage';
-import { NETWORK_BREEZ, NETWORK_BREEZTESTNET } from '@shared/types/networks';
-import { LayerzStorage } from '../../class/layerz-storage';
-import { Csprng } from '../../class/rng';
-import { SecureStorage } from '../../class/secure-storage';
-import { AskPasswordContext } from '../../hooks/AskPasswordContext';
+import { NETWORK_LIQUID, NETWORK_LIQUIDTESTNET } from '@shared/types/networks';
+import { AskMnemonicContext } from '../../hooks/AskMnemonicContext';
 import { useScanQR } from '../../hooks/ScanQrContext';
 import { BackgroundCaller } from '../../modules/background-caller';
 import { getBreezNetwork } from '../../modules/breeze-adapter';
-import { decrypt } from '../../modules/encryption';
 import { Button, HodlButton, Input, WideButton } from './DesignSystem';
 
 const SendLiquid: React.FC = () => {
   const scanQr = useScanQR();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const network = useContext(NetworkContext).network as typeof NETWORK_BREEZ | typeof NETWORK_BREEZTESTNET;
+  const network = useContext(NetworkContext).network as typeof NETWORK_LIQUID | typeof NETWORK_LIQUIDTESTNET;
   const { accountNumber } = useContext(AccountNumberContext);
-  const { askPassword } = useContext(AskPasswordContext);
+  const { askMnemonic } = useContext(AskMnemonicContext);
 
   const [address, setAddress] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
@@ -42,7 +36,7 @@ const SendLiquid: React.FC = () => {
     const paramAssetId = searchParams.get('assetId');
     if (paramAssetId) {
       return paramAssetId;
-    } else if (network === NETWORK_BREEZ) {
+    } else if (network === NETWORK_LIQUID) {
       return LBTC_ASSET_IDS.mainnet;
     } else {
       return LBTC_ASSET_IDS.testnet;
@@ -77,9 +71,9 @@ const SendLiquid: React.FC = () => {
   }, [accountNumber, network, assetId]);
 
   const handleAmountChange = (text: string) => {
-    // Only allow numbers and decimal point
-    if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setAmount(text);
+    const normalizedText = text.replace(',', '.');
+    if (normalizedText === '' || /^\d*\.?\d*$/.test(normalizedText)) {
+      setAmount(normalizedText);
       setError('');
     }
   };
@@ -162,17 +156,7 @@ const SendLiquid: React.FC = () => {
     setError('');
 
     try {
-      const password = await askPassword();
-      const encryptedMnemonic = await SecureStorage.getItem(STORAGE_KEY_MNEMONIC);
-      if (!encryptedMnemonic.startsWith(ENCRYPTED_PREFIX)) {
-        throw new Error('Mnemonic not encrypted, reinstall the extension');
-      }
-      try {
-        await decrypt(encryptedMnemonic.replace(ENCRYPTED_PREFIX, ''), password, await getDeviceID(LayerzStorage, Csprng));
-      } catch (_) {
-        throw new Error('Incorrect password');
-      }
-
+      await askMnemonic(); // verify password
       const mnemonic = await BackgroundCaller.getSubMnemonic(accountNumber);
       const wallet = new BreezWallet(mnemonic, getBreezNetwork(network));
       await wallet.sendPayment({ prepareResponse: prepareResult });

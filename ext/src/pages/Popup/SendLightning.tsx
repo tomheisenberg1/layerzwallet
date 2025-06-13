@@ -9,7 +9,8 @@ import { BreezWallet } from '@shared/class/wallets/breez-wallet';
 import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
 import { formatBalance } from '@shared/modules/string-utils';
-import { NETWORK_BREEZ, NETWORK_BREEZTESTNET } from '@shared/types/networks';
+import { NETWORK_LIQUID, NETWORK_LIQUIDTESTNET } from '@shared/types/networks';
+import { AskMnemonicContext } from '../../hooks/AskMnemonicContext';
 import { useScanQR } from '../../hooks/ScanQrContext';
 import { BackgroundCaller } from '../../modules/background-caller';
 import { getBreezNetwork } from '../../modules/breeze-adapter';
@@ -18,13 +19,14 @@ import { Button, HodlButton, Input, WideButton } from './DesignSystem';
 const SendLightning: React.FC = () => {
   const scanQr = useScanQR();
   const navigate = useNavigate();
+  const { askMnemonic } = useContext(AskMnemonicContext);
   const [invoice, setInvoice] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [sendState, setSendState] = useState<'idle' | 'preparing' | 'prepared' | 'success'>('idle');
   const [preparedResponse, setPreparedResponse] = useState<PrepareSendResponse | null>(null);
   const [feeSats, setFeeSats] = useState<number | null>(null);
   const [amountToSend, setAmountToSend] = useState<string>('');
-  const network = useContext(NetworkContext).network as typeof NETWORK_BREEZ | typeof NETWORK_BREEZTESTNET;
+  const network = useContext(NetworkContext).network as typeof NETWORK_LIQUID | typeof NETWORK_LIQUIDTESTNET;
   const { accountNumber } = useContext(AccountNumberContext);
   const breezWallet = useRef<BreezWallet | null>(null);
 
@@ -80,6 +82,7 @@ const SendLightning: React.FC = () => {
         throw new Error('Transaction not properly prepared');
       }
 
+      await askMnemonic(); // verify password
       const sendRequest: SendPaymentRequest = {
         prepareResponse: preparedResponse,
       };

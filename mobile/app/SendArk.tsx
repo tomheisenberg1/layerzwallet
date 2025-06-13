@@ -8,9 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import LongPressButton from '@/components/LongPressButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Csprng } from '@/src/class/rng';
-import { SecureStorage } from '@/src/class/secure-storage';
-import { AskPasswordContext } from '@/src/hooks/AskPasswordContext';
+import { AskMnemonicContext } from '@/src/hooks/AskMnemonicContext';
 import { ScanQrContext } from '@/src/hooks/ScanQrContext';
 import { BackgroundExecutor } from '@/src/modules/background-executor';
 import { ArkWallet } from '@shared/class/wallets/ark-wallet';
@@ -18,11 +16,10 @@ import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
 import { useBalance } from '@shared/hooks/useBalance';
 import { getDecimalsByNetwork, getTickerByNetwork } from '@shared/models/network-getters';
-import { getDeviceID } from '@shared/modules/device-id';
 import { formatBalance } from '@shared/modules/string-utils';
-import { ENCRYPTED_PREFIX, STORAGE_KEY_MNEMONIC } from '@shared/types/IStorage';
 import { ActivityIndicator, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { decrypt } from '../src/modules/encryption';
+import { NETWORK_SPARK } from '@shared/types/networks';
+import { SparkWallet } from '@shared/class/wallets/spark-wallet';
 
 const SendArk = () => {
   const { scanQr } = useContext(ScanQrContext);
@@ -32,23 +29,35 @@ const SendArk = () => {
   const [isPreparing, setIsPreparing] = useState<boolean>(false);
   const [isPrepared, setIsPrepared] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  const [isSending, setIsSending] = useState<boolean>(false);
   const { network } = useContext(NetworkContext);
   const { accountNumber } = useContext(AccountNumberContext);
-  const { askPassword } = useContext(AskPasswordContext);
+  const { askMnemonic } = useContext(AskMnemonicContext);
   const { balance } = useBalance(network, accountNumber, BackgroundExecutor);
   const arkWallet = useRef<ArkWallet | undefined>(undefined);
 
+  const handleAmountChange = (text: string) => {
+    const normalizedText = text.replace(',', '.');
+    if (normalizedText === '' || /^\d*\.?\d*$/.test(normalizedText)) {
+      setAmount(normalizedText);
+      setError('');
+    }
+  };
+
   const actualSend = async () => {
+    let startTs = Date.now();
     try {
+      setIsSending(true);
+      await new Promise((resolve) => setTimeout(resolve, 100)); // sleep to propagate
       const satValueBN = new BigNumber(amount);
       const satValue = satValueBN.multipliedBy(new BigNumber(10).pow(getDecimalsByNetwork(network))).toString(10);
 
       if (!arkWallet) {
         throw new Error('Internal error: ArkWallet is not set');
       }
-
       console.log('actual value to send:', +satValue);
 
+      startTs = Date.now();
       const transactionId = await arkWallet.current?.pay(toAddress, +satValue);
       assert(transactionId, 'Internal error: ArkWallet.pay() failed');
       console.log('submitted txid:', transactionId);
@@ -56,6 +65,9 @@ const SendArk = () => {
       setIsSuccess(true);
     } catch (error: any) {
       setError(error.message);
+    } finally {
+      console.log('actualSend took', (Date.now() - startTs) / 1000, 'sec');
+      setIsSending(false);
     }
   };
 
@@ -66,23 +78,19 @@ const SendArk = () => {
       // TODO: validate the address
       // TODO: validate the amount
 
-      const password = await askPassword();
-      const encryptedMnemonic = await SecureStorage.getItem(STORAGE_KEY_MNEMONIC);
-      assert(encryptedMnemonic.startsWith(ENCRYPTED_PREFIX), 'Mnemonic not encrypted, reinstall the app');
+      let mnemonic = await askMnemonic();
+      let w: ArkWallet | SparkWallet = new ArkWallet();
 
-      let decrypted: string = encryptedMnemonic;
-      if (encryptedMnemonic.startsWith(ENCRYPTED_PREFIX)) {
-        try {
-          decrypted = await decrypt(encryptedMnemonic.replace(ENCRYPTED_PREFIX, ''), password, await getDeviceID(SecureStorage, Csprng));
-        } catch {
-          throw new Error('Incorrect password');
-        }
+      if (network === NETWORK_SPARK) {
+        w = new SparkWallet();
+        mnemonic = await BackgroundExecutor.getSubMnemonic(accountNumber);
+        w.setSecret(mnemonic);
+        await w.init();
+      } else {
+        w.setSecret(mnemonic);
+        w.setAccountNumber(accountNumber);
+        await w.init();
       }
-
-      const w = new ArkWallet();
-      w.setSecret(decrypted);
-      w.setAccountNumber(accountNumber);
-      w.init();
       arkWallet.current = w;
 
       setIsPrepared(true);
@@ -136,7 +144,7 @@ const SendArk = () => {
 
         <ThemedView style={styles.inputSection}>
           <ThemedText style={styles.inputLabel}>Amount</ThemedText>
-          <TextInput style={styles.input2} testID="amount-input" placeholder="0.00" placeholderTextColor="#999" keyboardType="numeric" onChangeText={setAmount} value={amount} />
+          <TextInput style={styles.input2} testID="amount-input" placeholder="0.00" placeholderTextColor="#999" keyboardType="numeric" onChangeText={handleAmountChange} value={amount} />
           <ThemedText style={styles.balanceText}>
             Available balance: {balance ? formatBalance(balance, getDecimalsByNetwork(network), 8) : ''} {getTickerByNetwork(network)}
           </ThemedText>
@@ -163,26 +171,33 @@ const SendArk = () => {
         ) : null}
 
         {isPrepared ? (
-          <ThemedView style={styles.confirmContainer}>
-            <LongPressButton
-              style={styles.sendButton}
-              textStyle={styles.sendButtonText}
-              onLongPressComplete={actualSend}
-              title="Hold to confirm send"
-              progressColor="#FFFFFF"
-              backgroundColor="#007AFF"
-            />
+          isSending ? (
+            <ThemedView style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color="#007AFF" />
+              <ThemedText style={styles.loadingText}>Sending...</ThemedText>
+            </ThemedView>
+          ) : (
+            <ThemedView style={styles.confirmContainer}>
+              <LongPressButton
+                style={styles.sendButton}
+                textStyle={styles.sendButtonText}
+                onLongPressComplete={actualSend}
+                title="Hold to confirm send"
+                progressColor="#FFFFFF"
+                backgroundColor="#007AFF"
+              />
 
-            <TouchableOpacity
-              onPress={() => {
-                setIsPreparing(false);
-                setIsPrepared(false);
-              }}
-              style={styles.cancelButton}
-            >
-              <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
+              <TouchableOpacity
+                onPress={() => {
+                  setIsPreparing(false);
+                  setIsPrepared(false);
+                }}
+                style={styles.cancelButton}
+              >
+                <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+              </TouchableOpacity>
+            </ThemedView>
+          )
         ) : null}
       </ThemedView>
     </SafeAreaView>
