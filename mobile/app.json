@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/ios_1024x1024.png",
-    "scheme": ["layerzwallet", "bitcoin", "liquidnetwork"],
+    "scheme": ["bitcoin", "liquidnetwork", "layerzwallet"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -15,16 +15,11 @@
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleURLTypes": [
           {
-            "CFBundleURLName": "layerzwallet",
-            "CFBundleURLSchemes": ["layerzwallet"]
-          },
-          {
-            "CFBundleURLName": "bitcoin",
-            "CFBundleURLSchemes": ["bitcoin"]
-          },
-          {
-            "CFBundleURLName": "liquidnetwork", 
-            "CFBundleURLSchemes": ["liquidnetwork"]
+            "CFBundleURLSchemes": [
+              "bitcoin",
+              "liquidnetwork",
+              "layerzwallet"
+            ]
           }
         ]
       },
@@ -48,23 +43,6 @@
       "edgeToEdgeEnabled": true,
       "permissions": ["android.permission.CAMERA"],
       "package": "com.layerzwallet.mobile",
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "data": [
-            {
-              "scheme": "bitcoin"
-            },
-            {
-              "scheme": "liquidnetwork"
-            },
-            {
-              "scheme": "layerzwallet"
-            }
-          ],
-          "category": ["BROWSABLE", "DEFAULT"]
-        }
-      ],
       "icon": "./assets/images/android_512x512.png",
       "icons": [
         {
@@ -91,6 +69,29 @@
           "size": 512,
           "src": "./assets/images/android_512x512.png"
         }
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "bitcoin"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "liquidnetwork"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "layerzwallet"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
       ]
     },
     "web": {
@@ -99,8 +100,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "splash": {
-      "image": "./assets/images/ios_1024x1024.png",
-      "resizeMode": "native",
+      "image": "./assets/images/splash-icon.png",
       "backgroundColor": "#000000"
     },
     "plugins": [
@@ -108,8 +108,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/ios_1024x1024.png",
-          "resizeMode": "native",
+          "image": "./assets/images/splash-icon.png",
           "backgroundColor": "#000000"
         }
       ],
@@ -125,23 +124,6 @@
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "linking": {
-      "prefixes": [
-        "bitcoin:",
-        "liquidnetwork:",
-        "layerzwallet://"
-      ],
-      "config": {
-        "screens": {
-          "SendBtc": {
-            "path": "/send-bitcoin/:address?"
-          },
-          "SendLiquid": {
-            "path": "/send-liquid/:address?"
-          }
-        }
-      }
     },
     "extra": {
       "router": {
