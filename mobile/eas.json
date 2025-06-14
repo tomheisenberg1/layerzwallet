@@ -45,10 +45,6 @@
       "ios": {
         "simulator": true
       }
-    },
-    "production-file-dev-client": {
-      "extends": "production-file",
-      "developmentClient": true
     }
   },
   "submit": {
