@@ -15,11 +15,7 @@
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": [
-              "bitcoin",
-              "liquidnetwork",
-              "layerzwallet"
-            ]
+            "CFBundleURLSchemes": ["bitcoin", "liquidnetwork", "layerzwallet"]
           }
         ]
       },
