@@ -150,8 +150,16 @@ export default function ZSpinner() {
     };
   });
 
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    const progress = morphProgress.value;
+    const scale = interpolate(progress, [0, 1], [INITIAL_SCALE, 1]);
+    return {
+      transform: [{ scale }],
+    };
+  });
+
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, animatedContainerStyle]}>
       {/* Top Z layer */}
       <Animated.View style={[{ position: 'absolute' }, topLayerStyle]}>
         <Svg width={255} height={225} viewBox="0 0 255 225">
@@ -165,15 +173,21 @@ export default function ZSpinner() {
           <AnimatedPath animatedProps={bottomPathProps} />
         </Svg>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1, // Removed as we are giving fixed dimensions
     backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
+    width: 340, // Adjusted to better contain the animation
+    height: 340, // Adjusted to better contain the animation
+    borderRadius: 170, // Half of width/height to make it a circle
+    borderWidth: 2, // Retaining example border
+    borderColor: 'white', // Retaining example border color
+    overflow: 'hidden', // Ensures the animation is clipped to the circular boundary
   },
 });
