@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/ios_1024x1024.png",
-    "scheme": "myapp",
+    "scheme": ["myapp", "layerzwallet"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -59,6 +59,24 @@
         {
           "size": 512,
           "src": "./assets/images/android_512x512.png"
+        }
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            { "scheme": "layerzwallet" },
+            { "scheme": "exp+layerzwallet" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "data": { 
+            "scheme": "exp+layerzwallet",
+            "host": "expo-development-client"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
