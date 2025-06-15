@@ -24,6 +24,7 @@ import { useExchangeRate } from '@shared/hooks/useExchangeRate';
 import { OnrampProps } from '@/app/Onramp';
 import LiquidTokensView from '@/components/LiquidTokensView';
 import { fiatOnRamp } from '@shared/models/fiat-on-ramp';
+import { LayerzStorage } from '@/src/class/layerz-storage';
 
 export default function IndexScreen() {
   const { network, setNetwork } = useContext(NetworkContext);
@@ -46,6 +47,7 @@ export default function IndexScreen() {
         const hasMnemonic = await BackgroundExecutor.hasMnemonic();
         const hasAcceptedTermsOfService = await BackgroundExecutor.hasAcceptedTermsOfService();
         const hasEncryptedMnemonic = await BackgroundExecutor.hasEncryptedMnemonic();
+
         if (!hasMnemonic) {
           router.replace('/onboarding/intro');
           return;
@@ -59,6 +61,15 @@ export default function IndexScreen() {
         if (!hasAcceptedTermsOfService) {
           router.replace('/onboarding/tos');
           return;
+        }
+
+        // If we have an encrypted mnemonic, check if user is authenticated in this session
+        if (hasEncryptedMnemonic) {
+          const sessionAuth = await LayerzStorage.getItem('session_authenticated');
+          if (sessionAuth !== 'true') {
+            router.replace('/unlock' as any);
+            return;
+          }
         }
       } catch (error) {
         console.error('Error:', error);

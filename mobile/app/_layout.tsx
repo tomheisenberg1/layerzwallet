@@ -33,6 +33,18 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        // Clear session authentication when app goes to background
+        LayerzStorage.setItem('session_authenticated', '').catch(() => {});
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription?.remove();
+  }, []);
+
   if (!loaded) {
     return null;
   }
@@ -75,8 +87,11 @@ export default function RootLayout() {
               <NetworkContextProvider storage={LayerzStorage} backgroundCaller={BackgroundExecutor}>
                 <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
                   <Stack>
+                    <Stack.Screen name="unlock" options={{ headerShown: false }} />
                     <Stack.Screen name="index" options={{ headerShown: false, title: 'Home' }} />
-                    <Stack.Screen name="receive" />
+                    <Stack.Screen name="Receive" />
+                    <Stack.Screen name="ReceiveBreez" />
+                    <Stack.Screen name="ReceiveLightning" />
                     <Stack.Screen name="settings" options={{ headerShown: true, title: 'Settings' }} />
                     <Stack.Screen name="onboarding/intro" options={{ headerShown: false }} />
                     <Stack.Screen name="onboarding/create-password" options={{ headerShown: false }} />
@@ -85,6 +100,13 @@ export default function RootLayout() {
                     <Stack.Screen name="onboarding/create-wallet" options={{ headerShown: false }} />
                     <Stack.Screen name="selftest" options={{ title: 'Self Test' }} />
                     <Stack.Screen name="SendArk" options={{ title: 'Send ARK' }} />
+                    <Stack.Screen name="SendBtc" options={{ title: 'Send BTC' }} />
+                    <Stack.Screen name="SendEvm" options={{ title: 'Send' }} />
+                    <Stack.Screen name="SendLightning" options={{ title: 'Send Lightning' }} />
+                    <Stack.Screen name="SendLiquid" options={{ title: 'Send Liquid' }} />
+                    <Stack.Screen name="SendTokenEvm" options={{ title: 'Send Token' }} />
+                    <Stack.Screen name="SendBreez" options={{ title: 'Send Breez' }} />
+                    <Stack.Screen name="TransactionSuccessEvm" options={{ title: 'Transaction Success' }} />
                     <Stack.Screen name="Onramp" options={{ headerShown: true }} />
                     <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
                   </Stack>
