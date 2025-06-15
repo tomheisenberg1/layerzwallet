@@ -64,15 +64,12 @@
       "intentFilters": [
         {
           "action": "VIEW",
-          "data": [
-            { "scheme": "layerzwallet" },
-            { "scheme": "exp+layerzwallet" }
-          ],
+          "data": [{ "scheme": "layerzwallet" }, { "scheme": "exp+layerzwallet" }],
           "category": ["BROWSABLE", "DEFAULT"]
         },
         {
           "action": "VIEW",
-          "data": { 
+          "data": {
             "scheme": "exp+layerzwallet",
             "host": "expo-development-client"
           },
