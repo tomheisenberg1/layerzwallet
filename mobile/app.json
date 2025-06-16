@@ -5,14 +5,19 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/ios_1024x1024.png",
-    "scheme": "myapp",
+    "scheme": ["bitcoin", "liquidnetwork", "layerzwallet"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.layerzwallet.mobile",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["bitcoin", "liquidnetwork", "layerzwallet"]
+          }
+        ]
       },
       "icon": "./assets/images/ios_1024x1024.png",
       "icons": {
@@ -59,6 +64,29 @@
         {
           "size": 512,
           "src": "./assets/images/android_512x512.png"
+        }
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "bitcoin"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "liquidnetwork"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "layerzwallet"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
