@@ -7,7 +7,7 @@ import { BreezWallet, LBTC_ASSET_IDS } from '@shared/class/wallets/breez-wallet'
 import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
 import { formatBalance } from '@shared/modules/string-utils';
-import { NETWORK_BREEZ, NETWORK_BREEZTESTNET } from '@shared/types/networks';
+import { NETWORK_LIQUID, NETWORK_LIQUIDTESTNET } from '@shared/types/networks';
 import { AskMnemonicContext } from '../../hooks/AskMnemonicContext';
 import { useScanQR } from '../../hooks/ScanQrContext';
 import { BackgroundCaller } from '../../modules/background-caller';
@@ -18,7 +18,7 @@ const SendLiquid: React.FC = () => {
   const scanQr = useScanQR();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const network = useContext(NetworkContext).network as typeof NETWORK_BREEZ | typeof NETWORK_BREEZTESTNET;
+  const network = useContext(NetworkContext).network as typeof NETWORK_LIQUID | typeof NETWORK_LIQUIDTESTNET;
   const { accountNumber } = useContext(AccountNumberContext);
   const { askMnemonic } = useContext(AskMnemonicContext);
 
@@ -36,7 +36,7 @@ const SendLiquid: React.FC = () => {
     const paramAssetId = searchParams.get('assetId');
     if (paramAssetId) {
       return paramAssetId;
-    } else if (network === NETWORK_BREEZ) {
+    } else if (network === NETWORK_LIQUID) {
       return LBTC_ASSET_IDS.mainnet;
     } else {
       return LBTC_ASSET_IDS.testnet;
@@ -71,9 +71,9 @@ const SendLiquid: React.FC = () => {
   }, [accountNumber, network, assetId]);
 
   const handleAmountChange = (text: string) => {
-    // Only allow numbers and decimal point
-    if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setAmount(text);
+    const normalizedText = text.replace(',', '.');
+    if (normalizedText === '' || /^\d*\.?\d*$/.test(normalizedText)) {
+      setAmount(normalizedText);
       setError('');
     }
   };
