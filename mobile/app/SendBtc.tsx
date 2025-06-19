@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import * as bip21 from 'bip21';
 import { Stack } from 'expo-router';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 import LongPressButton from '@/components/LongPressButton';
 import { ThemedText } from '@/components/ThemedText';
@@ -21,6 +21,7 @@ import { NetworkContext } from '@shared/hooks/NetworkContext';
 import { useBalance } from '@shared/hooks/useBalance';
 import { getDecimalsByNetwork, getTickerByNetwork } from '@shared/models/network-getters';
 import { formatBalance } from '@shared/modules/string-utils';
+import { isDemoMode, getDemoWallets } from '@/src/demo-data';
 
 type TFeeRateOptions = { [rate: number]: number };
 
@@ -129,13 +130,23 @@ const SendBtc: React.FC = () => {
     })();
   }, [accountNumber]);
 
+  useEffect(() => {
+    if (isDemoMode()) {
+      // Use demo wallets for Send screen
+      // You can add logic here to prefill address/balance for demo
+    }
+  }, []);
+
   const broadcast = async () => {
+    if (isDemoMode()) {
+      setIsSuccess(true);
+      return;
+    }
     try {
       const result = await BlueElectrum.broadcastV2(txhex);
       if (!result) {
         throw new Error('Transaction failed');
       }
-
       setIsSuccess(true);
     } catch (error: any) {
       setError(error.message);
@@ -192,6 +203,9 @@ const SendBtc: React.FC = () => {
   const handleChangeCustom = (text: string) => {
     setCustomFeeRate(Number(text));
   };
+
+  // Always enable send button in demo mode
+  const isSendEnabled = isDemoMode() || (toAddress && amount && !isPreparing && !isPrepared && !isSuccess && !error);
 
   if (isSuccess) {
     return (
@@ -303,7 +317,17 @@ const SendBtc: React.FC = () => {
       </Modal>
 
       {!isPreparing && !isPrepared ? (
-        <TouchableOpacity style={[styles.sendButton, !sendData && styles.disabledButton]} onPress={prepareTransaction} disabled={!sendData}>
+        <TouchableOpacity
+          style={[styles.sendButton, !isSendEnabled && styles.disabledButton]}
+          onPress={() => {
+            if (isDemoMode()) {
+              setIsSuccess(true);
+              return;
+            }
+            prepareTransaction();
+          }}
+          disabled={!isSendEnabled}
+        >
           <MaterialCommunityIcons name="send" size={24} color="#fff" />
           <ThemedText style={styles.sendButtonText}>Send</ThemedText>
         </TouchableOpacity>
@@ -518,6 +542,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  unlockButton: {
+    backgroundColor: '#007AFF',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  unlockButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
 });
 

@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-nat
 import { useRouter } from 'expo-router';
 import { BackgroundExecutor } from '@/src/modules/background-executor';
 import { ThemedText } from '@/components/ThemedText';
+import { isDemoMode, getDemoMnemonic } from '@/src/demo-data';
 
 export default function CreateWalletScreen() {
   const router = useRouter();
@@ -13,12 +14,14 @@ export default function CreateWalletScreen() {
     (async () => {
       try {
         setIsLoading(true);
-        const hasMnemonic = await BackgroundExecutor.hasMnemonic();
-        console.log('hasMnemonic', hasMnemonic);
-        if (!hasMnemonic) {
-          const response = await BackgroundExecutor.createMnemonic();
-          console.log('response', response);
-          setRecoveryPhrase(response.mnemonic);
+        if (isDemoMode()) {
+          setRecoveryPhrase(getDemoMnemonic());
+        } else {
+          const hasMnemonic = await BackgroundExecutor.hasMnemonic();
+          if (!hasMnemonic) {
+            const response = await BackgroundExecutor.createMnemonic();
+            setRecoveryPhrase(response.mnemonic);
+          }
         }
       } catch (error) {
         console.error('Error creating wallet:', error);

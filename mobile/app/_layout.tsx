@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { AppState, AppStateStatus, LogBox } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { NetworkContextProvider } from '@shared/hooks/NetworkContext';
@@ -37,7 +38,15 @@ export default function RootLayout() {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
         // Clear session authentication when app goes to background
-        LayerzStorage.setItem('session_authenticated', '').catch(() => {});
+        // but not during internal navigation
+        setTimeout(() => {
+          if (AppState.currentState === 'background' || AppState.currentState === 'inactive') {
+            console.log('App is in background, clearing session auth');
+            LayerzStorage.setItem('session_authenticated', '').catch((err) => {
+              console.error('Error clearing session auth:', err);
+            });
+          }
+        }, 500); // Small delay to avoid triggering during quick screen transitions
       }
     };
 
@@ -50,73 +59,70 @@ export default function RootLayout() {
   }
 
   return (
-    <SWRConfig
-      value={{
-        provider: () => new SwrCacheProvider(),
-        isVisible: () => {
-          return true;
-        },
-        // @see https://swr.vercel.app/docs/advanced/react-native.en-US
-        initFocus(callback) {
-          let appState: AppStateStatus = AppState.currentState;
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SWRConfig
+        value={{
+          provider: () => new SwrCacheProvider(),
+          isVisible: () => {
+            return true;
+          },
+          // @see https://swr.vercel.app/docs/advanced/react-native.en-US
+          initFocus(callback) {
+            let appState: AppStateStatus = AppState.currentState;
 
-          const onAppStateChange = (nextAppState: AppStateStatus) => {
-            /* If it's resuming from background or inactive mode to active one */
-            if (appState.match(/inactive|background/) && nextAppState === 'active') {
-              callback();
-            }
-            appState = nextAppState;
-          };
+            const onAppStateChange = (nextAppState: AppStateStatus) => {
+              /* If it's resuming from background or inactive mode to active one */
+              if (appState.match(/inactive|background/) && nextAppState === 'active') {
+                callback();
+              }
+              appState = nextAppState;
+            };
 
-          // Subscribe to the app state change events
-          const subscription = AppState.addEventListener('change', onAppStateChange);
+            // Subscribe to the app state change events
+            const subscription = AppState.addEventListener('change', onAppStateChange);
 
-          return () => {
-            subscription.remove();
-          };
-        },
-        // TODO: do we even need this? we would need to use `NetInfo` package. need to make sure if implementing this
-        // really makes a difference (e.g. users return from airplane mode)
-        // initReconnect(callback) {}
-      }}
-    >
-      <ScanQrContextProvider>
-        <AskPasswordContextProvider>
-          <AskMnemonicContextProvider>
-            <AccountNumberContextProvider storage={LayerzStorage} backgroundCaller={BackgroundExecutor}>
-              <NetworkContextProvider storage={LayerzStorage} backgroundCaller={BackgroundExecutor}>
-                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                  <Stack>
-                    <Stack.Screen name="unlock" options={{ headerShown: false }} />
-                    <Stack.Screen name="index" options={{ headerShown: false, title: 'Home' }} />
-                    <Stack.Screen name="Receive" />
-                    <Stack.Screen name="ReceiveBreez" />
-                    <Stack.Screen name="ReceiveLightning" />
-                    <Stack.Screen name="settings" options={{ headerShown: true, title: 'Settings' }} />
-                    <Stack.Screen name="onboarding/intro" options={{ headerShown: false }} />
-                    <Stack.Screen name="onboarding/create-password" options={{ headerShown: false }} />
-                    <Stack.Screen name="onboarding/tos" options={{ headerShown: false }} />
-                    <Stack.Screen name="onboarding/import-wallet" options={{ headerShown: false }} />
-                    <Stack.Screen name="onboarding/create-wallet" options={{ headerShown: false }} />
-                    <Stack.Screen name="selftest" options={{ title: 'Self Test' }} />
-                    <Stack.Screen name="SendArk" options={{ title: 'Send ARK' }} />
-                    <Stack.Screen name="SendBtc" options={{ title: 'Send BTC' }} />
-                    <Stack.Screen name="SendEvm" options={{ title: 'Send' }} />
-                    <Stack.Screen name="SendLightning" options={{ title: 'Send Lightning' }} />
-                    <Stack.Screen name="SendLiquid" options={{ title: 'Send Liquid' }} />
-                    <Stack.Screen name="SendTokenEvm" options={{ title: 'Send Token' }} />
-                    <Stack.Screen name="SendBreez" options={{ title: 'Send Breez' }} />
-                    <Stack.Screen name="TransactionSuccessEvm" options={{ title: 'Transaction Success' }} />
-                    <Stack.Screen name="Onramp" options={{ headerShown: true }} />
-                    <Stack.Screen name="+not-found" options={{ title: 'Not Found' }} />
-                  </Stack>
-                  <StatusBar style="auto" />
-                </ThemeProvider>
-              </NetworkContextProvider>
-            </AccountNumberContextProvider>
-          </AskMnemonicContextProvider>
-        </AskPasswordContextProvider>
-      </ScanQrContextProvider>
-    </SWRConfig>
+            return () => {
+              subscription.remove();
+            };
+          },
+          // TODO: do we even need this? we would need to use `NetInfo` package. need to make sure if implementing this
+          // really makes a difference (e.g. users return from airplane mode)
+          // initReconnect(callback) {}
+        }}
+      >
+        <ScanQrContextProvider>
+          <AskPasswordContextProvider>
+            <AskMnemonicContextProvider>
+              <AccountNumberContextProvider storage={LayerzStorage} backgroundCaller={BackgroundExecutor}>
+                <NetworkContextProvider storage={LayerzStorage} backgroundCaller={BackgroundExecutor}>
+                  <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                    <Stack>
+                      <Stack.Screen name="AssetDetail" options={{ headerShown: false }} />
+                      <Stack.Screen name="passcode-new" options={{ headerShown: false }} />
+                      <Stack.Screen name="unlock" options={{ headerShown: false }} />
+                      <Stack.Screen name="index" options={{ headerShown: false, title: 'Home' }} />
+                      <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+                      <Stack.Screen name="selftest" options={{ title: 'Self Test' }} />
+                      <Stack.Screen name="passcode" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/welcome" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/step1" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/step2" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/step3" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/step4" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/import" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/legal" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/seed" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/verify" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/password" options={{ headerShown: false }} />
+                      <Stack.Screen name="onboarding/congratulations" options={{ headerShown: false }} />
+                    </Stack>
+                  </ThemeProvider>
+                </NetworkContextProvider>
+              </AccountNumberContextProvider>
+            </AskMnemonicContextProvider>
+          </AskPasswordContextProvider>
+        </ScanQrContextProvider>
+      </SWRConfig>
+    </GestureHandlerRootView>
   );
 }

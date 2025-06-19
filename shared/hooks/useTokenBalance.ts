@@ -4,6 +4,7 @@ import { StringNumber } from '../types/string-number';
 import { IBackgroundCaller } from '../types/IBackgroundCaller';
 import { ethers } from 'ethers';
 import { getRpcProvider } from '../models/network-getters';
+import { isDemoMode, getDemoBalances } from '@/src/demo-data';
 
 interface tokenBalanceFetcherArg {
   cacheKey: string;
@@ -15,6 +16,15 @@ interface tokenBalanceFetcherArg {
 
 export const tokenBalanceFetcher = async (arg: tokenBalanceFetcherArg): Promise<StringNumber | undefined> => {
   const { accountNumber, network, tokenContractAddress, backgroundCaller } = arg;
+  if (isDemoMode()) {
+    // Return demo data for EVM tokens
+    const demoBalances = getDemoBalances();
+    if (network === 'rootstock' || network === 'sepolia') {
+      return demoBalances.ETH.toString();
+    }
+    return '0';
+  }
+
   if (typeof accountNumber === 'undefined' || !network) return undefined;
 
   /**

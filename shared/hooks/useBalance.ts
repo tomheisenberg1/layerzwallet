@@ -8,6 +8,7 @@ import { getRpcProvider } from '../models/network-getters';
 import { ArkWallet } from '../class/wallets/ark-wallet';
 import { BreezWallet } from '../class/wallets/breez-wallet';
 import { SparkWallet } from '@shared/class/wallets/spark-wallet';
+import { isDemoMode, getDemoBalances } from '@/src/demo-data';
 
 interface balanceFetcherArg {
   cacheKey: string;
@@ -18,6 +19,21 @@ interface balanceFetcherArg {
 
 export const balanceFetcher = async (arg: balanceFetcherArg): Promise<StringNumber | undefined> => {
   const { accountNumber, network, backgroundCaller } = arg;
+  if (isDemoMode()) {
+    // Return demo data for supported networks
+    const demoBalances = getDemoBalances();
+    switch (network) {
+      case NETWORK_BITCOIN:
+        return demoBalances.BTC.toString();
+      case 'evm':
+      case 'ethereum':
+      case 'ETH':
+        return demoBalances.ETH.toString();
+      default:
+        return '0';
+    }
+  }
+
   if (typeof accountNumber === 'undefined' || !network) return undefined;
 
   /**

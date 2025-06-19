@@ -37,9 +37,13 @@ export const AccountNumberContextProvider: React.FC<AccountNumberContextProvider
   // initial load:
   useEffect(() => {
     (async () => {
+      console.log('AccountNumberContext: starting load...');
       await props.backgroundCaller.log('loading selected account...');
       const response = await props.storage.getItem(STORAGE_SELECTED_ACCOUNT_NUMBER);
-      setAccountNumber(Number(response) || 0);
+      console.log('AccountNumberContext: loaded response:', response);
+      const accountNum = Number(response) || 0;
+      console.log('AccountNumberContext: setting account number to:', accountNum);
+      setAccountNumber(accountNum);
     })();
   }, [props.storage, props.backgroundCaller]);
 

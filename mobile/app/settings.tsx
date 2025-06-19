@@ -11,6 +11,7 @@ import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { ScanQrContext } from '@/src/hooks/ScanQrContext';
 import { SecureStorage } from '@/src/class/secure-storage';
 import { STORAGE_KEY_MNEMONIC } from '@shared/types/IStorage';
+import { isDemoMode } from '@/src/demo-data';
 
 export default function SettingsScreen() {
   const { accountNumber, setAccountNumber } = useContext(AccountNumberContext);
@@ -60,6 +61,12 @@ export default function SettingsScreen() {
     router.push('/selftest');
   };
 
+  // Optionally, add a toggle for demo mode in settings
+  const handleToggleDemoMode = async () => {
+    // This is a placeholder. In Expo, you can set EXPO_PUBLIC_DEMO_MODE in app config or via dev menu.
+    Alert.alert('Demo Mode', 'To enable demo mode, set EXPO_PUBLIC_DEMO_MODE=1 in your environment.');
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ThemedView style={styles.container}>
@@ -105,6 +112,11 @@ export default function SettingsScreen() {
               }}
             >
               <ThemedText style={styles.selfTestButtonText}>ScanQr</ThemedText>
+            </TouchableOpacity>
+
+            {/* Demo Mode Toggle - Placeholder */}
+            <TouchableOpacity style={[styles.button, styles.demoModeButton]} onPress={handleToggleDemoMode}>
+              <ThemedText style={styles.demoModeButtonText}>{isDemoMode() ? 'Disable Demo Mode' : 'Enable Demo Mode'}</ThemedText>
             </TouchableOpacity>
           </ThemedView>
 
@@ -165,6 +177,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#34C759',
   },
   selfTestButtonText: {
+    color: 'white',
+    fontWeight: '700',
+  },
+  demoModeButton: {
+    backgroundColor: '#007AFF',
+  },
+  demoModeButtonText: {
     color: 'white',
     fontWeight: '700',
   },

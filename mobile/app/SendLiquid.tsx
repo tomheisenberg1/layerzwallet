@@ -17,6 +17,7 @@ import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
 import { formatBalance } from '@shared/modules/string-utils';
 import { NETWORK_LIQUID, NETWORK_LIQUIDTESTNET } from '@shared/types/networks';
+import { isDemoMode } from '@/src/demo-data';
 
 export type SendLiquidParams = {
   assetId?: string; // Optional asset ID - if not provided, use L-BTC
@@ -263,6 +264,9 @@ const SendLiquid = () => {
     );
   }
 
+  // Always enable send button in demo mode
+  const isSendEnabled = isDemoMode() || (!isSending && address && amount && selectedAsset);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Stack.Screen options={{ title: 'Send Liquid', headerShown: true }} />
@@ -310,8 +314,18 @@ const SendLiquid = () => {
 
           {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
 
-          <TouchableOpacity style={[styles.button, isSending && styles.disabledButton]} onPress={handleSend} disabled={isSending}>
-            <ThemedText style={styles.buttonText}>{isSending ? 'Preparing...' : 'Prepare'}</ThemedText>
+          <TouchableOpacity
+            style={[styles.button, !isSendEnabled && styles.buttonDisabled]}
+            onPress={() => {
+              if (isDemoMode()) {
+                setIsSuccess(true);
+                return;
+              }
+              handleSend();
+            }}
+            disabled={!isSendEnabled}
+          >
+            <ThemedText style={styles.buttonText}>Send</ThemedText>
           </TouchableOpacity>
         </ThemedView>
       </ScrollView>
@@ -386,8 +400,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-  disabledButton: {
+  buttonDisabled: {
     backgroundColor: '#ccc',
+  },
+  confirmButton: {
+    backgroundColor: '#007AFF',
   },
   buttonText: {
     color: 'white',

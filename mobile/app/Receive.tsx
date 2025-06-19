@@ -16,6 +16,7 @@ import { useBalance } from '@shared/hooks/useBalance';
 import { getDecimalsByNetwork, getTickerByNetwork } from '@shared/models/network-getters';
 import { capitalizeFirstLetter, formatBalance } from '@shared/modules/string-utils';
 import { StringNumber } from '@shared/types/string-number';
+import { isDemoMode, getDemoWallets } from '@/src/demo-data';
 
 export default function ReceiveScreen() {
   const { network } = useContext(NetworkContext);
@@ -47,6 +48,13 @@ export default function ReceiveScreen() {
 
   useEffect(() => {
     setIsLoading(true);
+    if (isDemoMode()) {
+      // Use the first demo wallet's address
+      const demoWallets = getDemoWallets();
+      setAddress(demoWallets[0]?.xpub || 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh');
+      setIsLoading(false);
+      return;
+    }
     BackgroundExecutor.getAddress(network, accountNumber)
       .then((addressResponse) => {
         setAddress(addressResponse);

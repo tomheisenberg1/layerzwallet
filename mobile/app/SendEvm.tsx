@@ -4,7 +4,7 @@ import assert from 'assert';
 import BigNumber from 'bignumber.js';
 import { Stack, useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import LongPressButton from '@/components/LongPressButton';
@@ -22,6 +22,7 @@ import { formatBalance } from '@shared/modules/string-utils';
 import { NETWORK_BITCOIN } from '@shared/types/networks';
 import { StringNumber } from '@shared/types/string-number';
 import { TransactionSuccessProps } from './TransactionSuccessEvm';
+import { isDemoMode, getDemoWallets } from '@/src/demo-data';
 
 export default function SendScreen() {
   const [screenState, setScreenState] = useState<'init' | 'preparing' | 'prepared' | 'broadcasting'>('init');
@@ -50,6 +51,13 @@ export default function SendScreen() {
         setErrorMessage('Error fetching address: ' + error.message);
       });
   }, [accountNumber, network]);
+
+  useEffect(() => {
+    if (isDemoMode()) {
+      // Use demo wallets for Send EVM screen
+      // You can add logic here to prefill address/balance for demo
+    }
+  }, []);
 
   const validateAddress = (address: string) => {
     if (!address.trim()) {
@@ -127,11 +135,23 @@ export default function SendScreen() {
     Keyboard.dismiss();
     setErrorMessage('');
     setScreenState('broadcasting');
+    if (isDemoMode()) {
+      // Fake a successful transaction in demo mode
+      router.replace({
+        pathname: '/TransactionSuccessEvm',
+        params: {
+          amount: new BigNumber(amount).multipliedBy(new BigNumber(10).pow(getDecimalsByNetwork(network))).toString(10),
+          recipient: recipientAddress,
+          network: network,
+          transactionId: 'demo-evm-txid-success',
+          bytes: bytes,
+        } as TransactionSuccessProps,
+      });
+      return;
+    }
     const e = new EvmWallet();
     try {
       const txid = await e.broadcastTransaction(network, bytes);
-
-      // Navigate to TransactionSuccessEvm with all required parameters
       router.replace({
         pathname: '/TransactionSuccessEvm',
         params: {
@@ -217,6 +237,9 @@ export default function SendScreen() {
     }
   };
 
+  // Always enable send button in demo mode
+  const isSendEnabled = isDemoMode() || (recipientAddress && amount && screenState !== 'preparing' && screenState !== 'broadcasting' && !errorMessage);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Stack.Screen
@@ -269,9 +292,31 @@ export default function SendScreen() {
               {screenState === 'preparing' ? <ThemedText>Preparing...</ThemedText> : null}
 
               {screenState === 'init' ? (
-                <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+                <Pressable
+                  style={[styles.sendButton, !isSendEnabled && styles.buttonDisabled]}
+                  onPress={() => {
+                    if (isDemoMode()) {
+                      setScreenState('broadcasting');
+                      setTimeout(() => {
+                        router.replace({
+                          pathname: '/TransactionSuccessEvm',
+                          params: {
+                            amount: '100000',
+                            recipient: recipientAddress || 'demo',
+                            network: network,
+                            transactionId: 'demo-evm-txid-success',
+                            bytes: bytes,
+                          } as TransactionSuccessProps,
+                        });
+                      }, 500);
+                      return;
+                    }
+                    handleSend();
+                  }}
+                  disabled={!isSendEnabled}
+                >
                   <ThemedText style={styles.sendButtonText}>Send</ThemedText>
-                </TouchableOpacity>
+                </Pressable>
               ) : null}
 
               {screenState === 'prepared' && fees && maxFees ? (
@@ -387,6 +432,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 'auto',
     marginBottom: 16,
+  },
+  buttonDisabled: {
+    backgroundColor: '#CCCCCC',
   },
   sendButtonText: {
     color: 'white',

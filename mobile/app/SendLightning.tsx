@@ -19,6 +19,7 @@ import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
 import { NetworkContext } from '@shared/hooks/NetworkContext';
 import { formatBalance } from '@shared/modules/string-utils';
 import { NETWORK_LIQUID, NETWORK_LIQUIDTESTNET } from '@shared/types/networks';
+import { isDemoMode } from '@/src/demo-data';
 
 const SendLightning = () => {
   const { scanQr } = useContext(ScanQrContext);
@@ -115,6 +116,9 @@ const SendLightning = () => {
     setPreparedResponse(null);
   };
 
+  // Always enable pay button in demo mode
+  const isPayEnabled = isDemoMode() || (!isPreparing && !isPrepared && invoice);
+
   if (isSuccess) {
     return (
       <SafeAreaView style={styles.container}>
@@ -178,7 +182,17 @@ const SendLightning = () => {
         )}
 
         {!isPreparing && !isPrepared && (
-          <TouchableOpacity style={styles.payButton} onPress={prepareTransaction}>
+          <TouchableOpacity
+            style={[styles.payButton, !isPayEnabled && styles.disabledButton]}
+            onPress={() => {
+              if (isDemoMode()) {
+                setIsSuccess(true);
+                return;
+              }
+              prepareTransaction();
+            }}
+            disabled={!isPayEnabled}
+          >
             <Ionicons name="flash" size={20} color="white" style={styles.payIcon} />
             <ThemedText style={styles.payButtonText}>Verify Payment</ThemedText>
           </TouchableOpacity>
@@ -189,7 +203,13 @@ const SendLightning = () => {
             <LongPressButton
               style={styles.payButton}
               textStyle={styles.payButtonText}
-              onLongPressComplete={sendPayment}
+              onLongPressComplete={() => {
+                if (isDemoMode()) {
+                  setIsSuccess(true);
+                  return;
+                }
+                sendPayment();
+              }}
               title="Hold to send payment"
               progressColor="#FFFFFF"
               backgroundColor="#FF9500"
@@ -309,6 +329,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
   },
   payIcon: {
     marginRight: 10,

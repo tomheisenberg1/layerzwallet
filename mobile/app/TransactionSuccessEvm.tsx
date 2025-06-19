@@ -13,6 +13,7 @@ import * as Linking from 'expo-linking';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { isDemoMode } from '@/src/demo-data';
 
 export type TransactionSuccessProps = {
   amount: string; // in sats
@@ -28,6 +29,7 @@ const TransactionSuccessEvm: React.FC = () => {
   const params = useLocalSearchParams<TransactionSuccessProps>();
   const { transactionId, amount, recipient, network, bytes, amountToken, tokenContractAddress } = params;
   const { receipt } = useTransactionReceipt(network, transactionId);
+  const isDemoSuccess = isDemoMode() && transactionId === 'demo-evm-txid-success';
 
   const list = getTokenList(network);
   const tokenInfo = list.find((token) => token.address === tokenContractAddress);
@@ -82,7 +84,7 @@ const TransactionSuccessEvm: React.FC = () => {
       />
 
       <View style={styles.statusContainer}>
-        {receipt && hexToDec(receipt.status) === 1 ? (
+        {isDemoSuccess || (receipt && hexToDec(receipt.status) === 1) ? (
           <>
             <Ionicons name="checkmark-circle" size={48} color="#4CAF50" />
             <ThemedText style={styles.statusTitle}>Transaction sent successfully!</ThemedText>
@@ -96,14 +98,14 @@ const TransactionSuccessEvm: React.FC = () => {
           </>
         ) : null}
 
-        {!receipt ? (
+        {!receipt && !isDemoSuccess ? (
           <>
             <Ionicons name="sync" size={48} color="#FFA500" />
             <ThemedText style={styles.statusTitle}>Waiting for a transaction...</ThemedText>
           </>
         ) : null}
 
-        {showTimedOutTxIcon && !receipt && (
+        {showTimedOutTxIcon && !receipt && !isDemoSuccess && (
           <View style={styles.warningContainer}>
             <Ionicons name="alert-circle" size={24} color="red" />
             <ThemedText style={styles.warningText}>Transaction can not be found on the blockchain. Insufficient fee?</ThemedText>
