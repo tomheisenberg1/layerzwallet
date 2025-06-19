@@ -31,9 +31,9 @@ export default function IndexScreen() {
         }
 
         const sessionAuth = await LayerzStorage.getItem('session_authenticated');
-        if (sessionAuth !== 'true') {
-          router.replace('/unlock');
-        }
+        // if (sessionAuth !== 'true') {
+        //   router.replace('/unlock');
+        // }
       } catch (error) {
         console.error('Error during setup checks:', error);
       }
