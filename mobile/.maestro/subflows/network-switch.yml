@@ -3,29 +3,20 @@ appId: com.layerzwallet.mobile
 - tapOn:
     id: 'NetworkSwitcherTrigger'
 - waitForAnimationToEnd
-- assertVisible: 'Select Network'
 
-# expand the network switcher
-- swipe:
-    from:
-      id: 'NetworkSelectorHeader'
-    direction: UP
-
-# do a fast swipe to scroll to the top
-- swipe:
-    start: 50%, 20%
-    end: 50%, 100%
-    duration: 10
+- waitForAnimationToEnd
 
 # scroll to the network to select
 - scrollUntilVisible:
     centerElement: true
     element:
-      id: ${'network-' + NETWORK}
+      id: ${'network-card-' + NETWORK}
 
 # select the network
 - tapOn:
-    id: ${'network-' + NETWORK}
+    id: ${'network-card-' + NETWORK}
 - waitForAnimationToEnd
+
+# Verify the network was selected by checking the home screen
 - assertVisible:
     id: ${'selectedNetwork-' + NETWORK}

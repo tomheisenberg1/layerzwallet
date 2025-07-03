@@ -276,7 +276,7 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
 
   return (
     <Animated.View sharedTransitionTag={transitionId} style={[styles.card, { backgroundColor: card.color }, animatedStyle]}>
-      <TouchableOpacity onPressIn={handlePressIn} onPressOut={handlePressOut} onPress={handlePress} style={styles.touchableCard} activeOpacity={0.9}>
+      <TouchableOpacity onPressIn={handlePressIn} onPressOut={handlePressOut} onPress={handlePress} style={styles.touchableCard} activeOpacity={0.9} testID={`network-card-${card.name.toLowerCase()}`}>
         <View style={styles.topRow}>
           <View style={styles.cardHeader}>
             {card.icon ? (
