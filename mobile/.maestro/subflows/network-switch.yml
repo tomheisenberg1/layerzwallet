@@ -1,22 +1,55 @@
 appId: com.layerzwallet.mobile
 ---
+# Test 1: Switch to Bitcoin
 - tapOn:
     id: 'NetworkSwitcherTrigger'
 - waitForAnimationToEnd
-
 - waitForAnimationToEnd
 
-# scroll to the network to select
 - scrollUntilVisible:
     centerElement: true
     element:
-      id: ${'network-card-' + NETWORK}
+      id: 'network-bitcoin'
 
-# select the network
 - tapOn:
-    id: ${'network-card-' + NETWORK}
+    id: 'network-bitcoin'
 - waitForAnimationToEnd
 
-# Verify the network was selected by checking the home screen
 - assertVisible:
-    id: ${'selectedNetwork-' + NETWORK}
+    id: 'selectedNetwork-bitcoin'
+
+# Test 2: Switch to Rootstock
+- tapOn:
+    id: 'NetworkSwitcherTrigger'
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: 'network-rootstock'
+
+- tapOn:
+    id: 'network-rootstock'
+- waitForAnimationToEnd
+
+- assertVisible:
+    id: 'selectedNetwork-rootstock'
+
+# Test 3: Switch back to Bitcoin
+- tapOn:
+    id: 'NetworkSwitcherTrigger'
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+
+- scrollUntilVisible:
+    centerElement: true
+    element:
+      id: 'network-bitcoin'
+
+- tapOn:
+    id: 'network-bitcoin'
+- waitForAnimationToEnd
+
+- assertVisible:
+    id: 'selectedNetwork-bitcoin'
