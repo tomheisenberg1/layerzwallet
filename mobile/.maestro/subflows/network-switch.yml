@@ -7,7 +7,6 @@ appId: com.layerzwallet.mobile
 - waitForAnimationToEnd
 
 - scrollUntilVisible:
-    centerElement: true
     element:
       id: 'network-bitcoin'
 
@@ -25,7 +24,6 @@ appId: com.layerzwallet.mobile
 - waitForAnimationToEnd
 
 - scrollUntilVisible:
-    centerElement: true
     element:
       id: 'network-rootstock'
 
@@ -43,7 +41,6 @@ appId: com.layerzwallet.mobile
 - waitForAnimationToEnd
 
 - scrollUntilVisible:
-    centerElement: true
     element:
       id: 'network-bitcoin'
 
