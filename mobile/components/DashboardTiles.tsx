@@ -1,18 +1,26 @@
-import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { View, StyleSheet, Dimensions, Text, Image, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, runOnUI, runOnJS, interpolate, useAnimatedScrollHandler, useAnimatedReaction } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
+import { getAvailableNetworks } from '@shared/types/networks';
+import { getNetworkGradient, getNetworkIcon } from '@shared/constants/Colors';
+import { getIsTestnet, getTickerByNetwork, getDecimalsByNetwork } from '@shared/models/network-getters';
+import { AccountNumberContext } from '@shared/hooks/AccountNumberContext';
+import { useBalance } from '@shared/hooks/useBalance';
+import { useExchangeRate } from '@shared/hooks/useExchangeRate';
+import { formatBalance, formatFiatBalance } from '@shared/modules/string-utils';
+import { BackgroundExecutor } from '@/src/modules/background-executor';
 
 const { width, height } = Dimensions.get('window');
-const CARD_WIDTH = width - 40;
+const CARD_WIDTH = width - 32;
 const CARD_HEIGHT = 200;
 const FOCUSED_SCALE = 1.0;
-const UNFOCUSED_SCALE = 0.8;
+const UNFOCUSED_SCALE = 0.88;
 const ZOOM_SCALE = 2.5;
-const CARD_SPACING = -40;
+const CARD_SPACING = -50;
 const SCROLL_SNAP_THRESHOLD = CARD_HEIGHT + CARD_SPACING;
 
 interface LayerCard {
@@ -22,6 +30,7 @@ interface LayerCard {
   usdValue: string;
   color: string;
   icon?: any;
+  iconName?: string;
   tags?: string[];
   tokenCount?: number;
   originalIndex?: number;
@@ -43,50 +52,60 @@ interface LayerCardTileProps extends DashboardTileProps {
   transitionId: string;
 }
 
-function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCardPress, transitionId, totalCards, disableNavigation = false }: LayerCardTileProps) {
+const LayerCardTile = ({ card, index, cardPosition, scrollY, selectedIndex, onCardPress, transitionId, totalCards, disableNavigation = false }: LayerCardTileProps) => {
   const router = useRouter();
   const { returnProgress } = useLocalSearchParams();
 
-  const scale = useSharedValue(UNFOCUSED_SCALE);
-  const opacity = useSharedValue(0.6);
-  const translateY = useSharedValue(0);
-  const translateX = useSharedValue(0);
-  const rotateXVal = useSharedValue(0);
-  const rotateYVal = useSharedValue(0);
-  const wasPressed = useSharedValue(false);
-  const isSelected = useSharedValue(false);
-  const originalCardPosition = useSharedValue(0);
+  const cardScale = useSharedValue(UNFOCUSED_SCALE);
+  const cardOpacity = useSharedValue(0.6);
+  const cardY = useSharedValue(0);
+  const cardX = useSharedValue(0);
+  const rotationX = useSharedValue(0);
+  const rotationY = useSharedValue(0);
+  const wasTapped = useSharedValue(false);
+  const isCurrentlySelected = useSharedValue(false);
+  const savedPosition = useSharedValue(0);
 
   useEffect(() => {
     if (selectedIndex >= 0 && selectedIndex !== index) {
       const slideDirection = index < selectedIndex ? -1 : 1;
       const slideDistance = slideDirection * 400;
 
-      translateY.value = withTiming(slideDistance, {
-        duration: 250,
+      cardY.value = withTiming(slideDistance, {
+        duration: 350,
       });
-      opacity.value = withTiming(0, {
-        duration: 250,
+      cardOpacity.value = withTiming(0, {
+        duration: 350,
       });
     } else if (selectedIndex < 0) {
-      if (!wasPressed.value) {
-        translateY.value = withSpring(0, {
-          damping: 25,
-          stiffness: 300,
-          mass: 0.6,
+      if (!wasTapped.value) {
+        cardY.value = withSpring(0, {
+          damping: 30,
+          stiffness: 400,
+          mass: 0.5,
         });
       }
     }
-  }, [selectedIndex, index, translateY, opacity, wasPressed]);
+  }, [selectedIndex, index, cardY, cardOpacity, wasTapped]);
 
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
-    if (isSelected.value) {
-      return { transform: [{ translateY: translateY.value }, { scale: scale.value }, { perspective: 1000 }], opacity: opacity.value, elevation: 50, zIndex: 500 };
+    if (isCurrentlySelected.value) {
+      return {
+        transform: [{ translateY: cardY.value }, { scale: cardScale.value }, { perspective: 1000 }],
+        opacity: cardOpacity.value,
+        elevation: 50,
+        zIndex: 500,
+      };
     }
 
     if (selectedIndex >= 0 && selectedIndex !== index) {
-      return { transform: [{ translateY: translateY.value }, { translateX: translateX.value }, { scale: scale.value }, { perspective: 1000 }], opacity: opacity.value, elevation: 0, zIndex: 0 };
+      return {
+        transform: [{ translateY: cardY.value }, { translateX: cardX.value }, { scale: cardScale.value }, { perspective: 1000 }],
+        opacity: cardOpacity.value,
+        elevation: 0,
+        zIndex: 0,
+      };
     }
 
     try {
@@ -97,7 +116,7 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
       if (!isFinite(rawDistanceFromCenter) || rawDistanceFromCenter < 0 || rawDistanceFromCenter > height * 2) {
         return {
           transform: [{ translateY: 0 }, { translateX: 0 }, { scale: UNFOCUSED_SCALE }, { rotateZ: '0deg' }, { perspective: 1000 }],
-          opacity: 0.5,
+          opacity: 0.6,
           elevation: 5,
           zIndex: 10,
           borderWidth: 0,
@@ -106,10 +125,10 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
       }
 
       const distanceFromCenter = Math.max(0, Math.min(height, rawDistanceFromCenter));
-      const scaleThreshold = SCROLL_SNAP_THRESHOLD * 0.8;
+      const scaleThreshold = SCROLL_SNAP_THRESHOLD * 0.75;
       const currentScale = interpolate(distanceFromCenter, [0, scaleThreshold], [FOCUSED_SCALE, UNFOCUSED_SCALE], 'clamp');
-      const opacityThreshold = SCROLL_SNAP_THRESHOLD * 0.8;
-      const currentOpacity = interpolate(distanceFromCenter, [0, opacityThreshold, SCROLL_SNAP_THRESHOLD * 2.0], [1.0, 0.8, 0.0], 'clamp');
+      const opacityThreshold = SCROLL_SNAP_THRESHOLD * 0.75;
+      const currentOpacity = interpolate(distanceFromCenter, [0, opacityThreshold, SCROLL_SNAP_THRESHOLD * 1.8], [1.0, 0.85, 0.0], 'clamp');
 
       const zIndexThreshold = SCROLL_SNAP_THRESHOLD * 0.8;
       const screenCenter = height / 2;
@@ -117,8 +136,8 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
       const cardZIndex = isAboveCenter ? interpolate(distanceFromCenter, [0, zIndexThreshold], [2000, 800], 'clamp') : interpolate(distanceFromCenter, [0, zIndexThreshold], [2000, 10], 'clamp');
       const cardElevation = isAboveCenter ? interpolate(distanceFromCenter, [0, zIndexThreshold], [50, 25], 'clamp') : interpolate(distanceFromCenter, [0, zIndexThreshold], [50, 5], 'clamp');
 
-      const focusedOffset = interpolate(distanceFromCenter, [0, scaleThreshold], [-3, 0], 'clamp');
-      const stackingOffset = isAboveCenter ? interpolate(distanceFromCenter, [0, scaleThreshold], [0, -5], 'clamp') : interpolate(distanceFromCenter, [0, scaleThreshold * 1.5], [0, 150], 'clamp');
+      const focusedOffset = interpolate(distanceFromCenter, [0, scaleThreshold], [-2, 0], 'clamp');
+      const stackingOffset = isAboveCenter ? interpolate(distanceFromCenter, [0, scaleThreshold], [0, -3], 'clamp') : interpolate(distanceFromCenter, [0, scaleThreshold * 1.4], [0, 120], 'clamp');
 
       const borderThreshold = SCROLL_SNAP_THRESHOLD * 0.5;
       const borderWidth = interpolate(distanceFromCenter, [0, borderThreshold], [2, 0], 'clamp');
@@ -126,12 +145,14 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
       const safeBorderOpacity = Math.max(0, Math.min(1, isNaN(borderOpacity) ? 0 : borderOpacity));
       const borderColor = `rgba(255, 255, 255, ${safeBorderOpacity.toFixed(3)})`;
 
+      const rotationAngle = interpolate(distanceFromCenter, [0, scaleThreshold * 2], [0, isAboveCenter ? -1 : 1], 'clamp');
+
       return {
         transform: [
-          { translateY: translateY.value + focusedOffset + stackingOffset },
-          { translateX: translateX.value },
+          { translateY: cardY.value + focusedOffset + stackingOffset },
+          { translateX: cardX.value },
           { scale: isNaN(currentScale) ? 1 : currentScale },
-          { rotateZ: '0deg' },
+          { rotateZ: `${rotationAngle}deg` },
           { perspective: 1000 },
         ],
         opacity: Math.max(0, Math.min(1, isNaN(currentOpacity) ? 1 : currentOpacity)),
@@ -143,7 +164,7 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
     } catch (error) {
       return {
         transform: [{ translateY: 0 }, { translateX: 0 }, { scale: UNFOCUSED_SCALE }, { rotateZ: '0deg' }, { perspective: 1000 }],
-        opacity: 0.5,
+        opacity: 0.6,
         elevation: 5,
         zIndex: 10,
         borderWidth: 0,
@@ -159,9 +180,9 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
 
     if (disableNavigation) return;
 
-    originalCardPosition.value = cardPosition - scrollY.value;
-    wasPressed.value = true;
-    isSelected.value = true;
+    savedPosition.value = cardPosition - scrollY.value;
+    wasTapped.value = true;
+    isCurrentlySelected.value = true;
 
     const navigatePush = () => {
       router.push({
@@ -182,20 +203,42 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
         },
       });
     };
-    translateY.value = withTiming(-originalCardPosition.value, { duration: 300 });
-    scale.value = withTiming(ZOOM_SCALE, { duration: 300 }, (finished) => {
-      if (finished) runOnJS(navigatePush)();
+
+    cardY.value = withTiming(-savedPosition.value, {
+      duration: 400,
     });
+    cardScale.value = withTiming(
+      ZOOM_SCALE,
+      {
+        duration: 400,
+      },
+      (finished) => {
+        if (finished) runOnJS(navigatePush)();
+      }
+    );
   };
 
   const handlePressIn = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    rotateXVal.value = withTiming(-10, { duration: 150 });
-    rotateYVal.value = withTiming(10, { duration: 150 });
+    rotationX.value = withSpring(-3, {
+      damping: 20,
+      stiffness: 500,
+    });
+    rotationY.value = withSpring(3, {
+      damping: 20,
+      stiffness: 500,
+    });
   };
+
   const handlePressOut = () => {
-    rotateXVal.value = withTiming(0, { duration: 150 });
-    rotateYVal.value = withTiming(0, { duration: 150 });
+    rotationX.value = withSpring(0, {
+      damping: 20,
+      stiffness: 400,
+    });
+    rotationY.value = withSpring(0, {
+      damping: 20,
+      stiffness: 400,
+    });
   };
 
   useEffect(() => {
@@ -204,41 +247,37 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
       runOnUI(() => {
         'worklet';
         const headerTargetPosition = 100;
-        const origPos = originalCardPosition.value;
+        const origPos = savedPosition.value;
         const deltaY = headerTargetPosition - origPos;
-        translateY.value = withTiming(deltaY * (1 - p), { duration: 0 });
-        scale.value = 1 + (FOCUSED_SCALE - 1) * (1 - p);
-        rotateXVal.value = -15 * (1 - p);
-        rotateYVal.value = 15 * (1 - p);
+        cardY.value = withTiming(deltaY * (1 - p), { duration: 0 });
+        cardScale.value = 1 + (FOCUSED_SCALE - 1) * (1 - p);
+        rotationX.value = -15 * (1 - p);
+        rotationY.value = 15 * (1 - p);
       })();
     }
-  }, [returnProgress, originalCardPosition, translateY, scale, rotateXVal, rotateYVal]);
+  }, [returnProgress, savedPosition, cardY, cardScale, rotationX, rotationY]);
 
   useFocusEffect(
     useCallback(() => {
-      if (wasPressed.value && isSelected.value) {
+      if (wasTapped.value && isCurrentlySelected.value) {
         const headerPosition = 100;
-        const returnDeltaY = originalCardPosition.value - headerPosition;
+        const returnDeltaY = savedPosition.value - headerPosition;
 
-        translateY.value = -returnDeltaY;
-        scale.value = 1.2;
-        opacity.value = 1;
+        cardY.value = -returnDeltaY;
+        cardScale.value = 1.2;
+        cardOpacity.value = 1;
 
-        translateY.value = withTiming(0, {
-          duration: 300,
-        });
-        scale.value = withTiming(FOCUSED_SCALE, {
-          duration: 300,
-        });
-        rotateXVal.value = withTiming(0, { duration: 300 });
-        rotateYVal.value = withTiming(0, { duration: 300 });
+        cardY.value = withTiming(0, { duration: 400 });
+        cardScale.value = withTiming(FOCUSED_SCALE, { duration: 400 });
+        rotationX.value = withTiming(0, { duration: 400 });
+        rotationY.value = withTiming(0, { duration: 400 });
 
         setTimeout(() => {
-          wasPressed.value = false;
-          isSelected.value = false;
-        }, 300);
+          wasTapped.value = false;
+          isCurrentlySelected.value = false;
+        }, 400);
       }
-    }, [scale, translateY, opacity, wasPressed, isSelected, originalCardPosition, rotateXVal, rotateYVal])
+    }, [cardScale, cardY, cardOpacity, wasTapped, isCurrentlySelected, savedPosition, rotationX, rotationY])
   );
 
   return (
@@ -285,140 +324,102 @@ function LayerCardTile({ card, index, cardPosition, scrollY, selectedIndex, onCa
             <Text style={styles.cardBalance}>
               {card.balance || '0'} {card.ticker}
             </Text>
-            <Text style={styles.cardUsdValue}>{card.usdValue || '0.00'} USD</Text>
+            <Text style={styles.cardUsdValue}>{card.usdValue || '0.00'}</Text>
           </View>
         </View>
       </TouchableOpacity>
     </Animated.View>
   );
-}
+};
 
-const cards: LayerCard[] = [
-  {
-    name: 'Bitcoin',
-    ticker: 'BTC',
-    balance: '1.01762',
-    usdValue: '94,680.61',
-    color: '#001689',
-    icon: require('../assetnew/images/Frame2607760.png'),
-    tokenCount: 0,
-    tags: [],
-    networkId: 'bitcoin',
-  },
-  {
-    name: 'Rootstock',
-    ticker: 'RBTC',
-    balance: '1.01762',
-    usdValue: '94,680.61',
-    color: '#00733B',
-    icon: require('../assets/images/ui/img_14.png'),
-    tokenCount: 4,
-    tags: ['Tether RSK', 'RIF', 'DOC', '+2'],
-    networkId: 'rootstock',
-  },
-  {
-    name: 'Botanix',
-    ticker: 'BTC',
-    balance: '1.01762',
-    usdValue: '94,680.61',
-    color: '#98390B',
-    icon: require('../assetnew/images/Frame2607761.png'),
-    tokenCount: 2,
-    tags: ['USDC.btx', 'BTC.btx'],
-    networkId: 'botanix',
-  },
-  {
-    name: 'Botanix Testnet',
-    ticker: 'BTC',
-    balance: '0.50000',
-    usdValue: '47,340.30',
-    color: '#A64B2F',
-    tokenCount: 1,
-    tags: ['Test Network'],
-    networkId: 'botanixtest',
-  },
-  {
-    name: 'Strata',
-    ticker: 'BTC',
-    balance: '1.01762',
-    usdValue: '94,680.61',
-    color: '#59006E',
-    icon: require('../assetnew/images/Frame260722761.png'),
-    tokenCount: 1,
-    tags: ['zkBTC'],
-    networkId: 'strata',
-  },
-  {
-    name: 'Citrea',
-    ticker: 'cBTC',
-    balance: '0.75000',
-    usdValue: '71,010.45',
-    color: '#FF6B35',
-    tokenCount: 3,
-    tags: ['BitVM', 'Rollup'],
-    networkId: 'citrea',
-  },
-  {
-    name: 'Ark',
-    ticker: 'BTC',
-    balance: '0.25000',
-    usdValue: '23,670.15',
-    color: '#8B5CF6',
-    tokenCount: 0,
-    tags: ['Privacy'],
-    networkId: 'ark',
-  },
-  {
-    name: 'Liquid',
-    ticker: 'L-BTC',
-    balance: '0.80000',
-    usdValue: '75,744.48',
-    color: '#00A86B',
-    tokenCount: 2,
-    tags: ['Sidechain'],
-    networkId: 'liquid',
-  },
-  {
-    name: 'Liquid Testnet',
-    ticker: 'L-BTC',
-    balance: '0.10000',
-    usdValue: '9,468.06',
-    color: '#00B87C',
-    tokenCount: 1,
-    tags: ['Test Network'],
-    networkId: 'liquidtest',
-  },
-  {
-    name: 'Spark',
-    ticker: 'BTC',
-    balance: '0.35000',
-    usdValue: '33,138.21',
-    color: '#FF4081',
-    tokenCount: 0,
-    tags: ['Layer 2'],
-    networkId: 'spark',
-  },
-  {
-    name: 'Lightning',
-    ticker: 'BTC',
-    balance: '0.05000',
-    usdValue: '4,734.03',
-    color: '#FFC107',
-    tokenCount: 0,
-    tags: ['Payment'],
-    networkId: 'lightning',
-  },
-  {
-    name: 'Lightning Testnet',
-    ticker: 'BTC',
-    balance: '0.01000',
-    usdValue: '946.81',
-    color: '#FFD54F',
-    tokenCount: 0,
-    tags: ['Test Network'],
-    networkId: 'lightningtest',
-  },
-];
+const useNetworkCards = (accountNumber: number): LayerCard[] => {
+  const networks = getAvailableNetworks();
+
+  return useMemo(() => {
+    return networks.map((network, index) => {
+      const isTestnet = getIsTestnet(network);
+      const gradientColors = getNetworkGradient(network);
+      const iconName = getNetworkIcon(network);
+      const ticker = getTickerByNetwork(network);
+
+      return {
+        name: network.charAt(0).toUpperCase() + network.slice(1),
+        ticker: ticker,
+        balance: '0.00000',
+        usdValue: isTestnet ? 'Testnet' : '$0.00',
+        color: gradientColors[0],
+        icon: null,
+        iconName: iconName,
+        tags: isTestnet ? ['Testnet'] : [],
+        tokenCount: 0,
+        networkId: network,
+        originalIndex: index,
+      };
+    });
+  }, [networks]);
+};
+
+const NetworkCard = ({
+  card,
+  index,
+  cardPosition,
+  scrollY,
+  selectedIndex,
+  onCardPress,
+  transitionId,
+  totalCards,
+  disableNavigation,
+  accountNumber,
+}: LayerCardTileProps & { accountNumber: number }) => {
+  const { balance, isLoading: balanceLoading, error: balanceError } = useBalance(card.networkId as any, accountNumber, BackgroundExecutor);
+  const { exchangeRate, isLoading: exchangeRateLoading, error: exchangeRateError } = useExchangeRate(card.networkId as any, 'USD');
+  const [hasTimedOut, setHasTimedOut] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHasTimedOut(true);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const cardData = useMemo(() => {
+    const isTestnet = getIsTestnet(card.networkId as any);
+
+    const formattedBalance =
+      balance !== undefined && balance !== null ? formatBalance(balance, getDecimalsByNetwork(card.networkId as any), 8) : balanceLoading && !hasTimedOut ? '···' : balanceError ? 'Error' : '0.00000';
+
+    const formattedUsdValue = isTestnet
+      ? 'Testnet'
+      : balance !== undefined && balance !== null && exchangeRate
+        ? `$${formatFiatBalance(balance, getDecimalsByNetwork(card.networkId as any), exchangeRate)}`
+        : exchangeRateLoading && !hasTimedOut
+          ? '···'
+          : exchangeRateError
+            ? 'Rate Error'
+            : '$0.00';
+
+    return {
+      ...card,
+      balance: formattedBalance,
+      usdValue: formattedUsdValue,
+    };
+  }, [card, balance, exchangeRate, balanceLoading, exchangeRateLoading, hasTimedOut, balanceError, exchangeRateError]);
+
+  return (
+    <LayerCardTile
+      card={cardData}
+      index={index}
+      cardPosition={cardPosition}
+      scrollY={scrollY}
+      selectedIndex={selectedIndex}
+      onCardPress={onCardPress}
+      transitionId={transitionId}
+      totalCards={totalCards}
+      disableNavigation={disableNavigation}
+    />
+  );
+};
 
 interface DashboardTilesProps {
   cards?: LayerCard[];
@@ -426,76 +427,74 @@ interface DashboardTilesProps {
   onClose?: () => void;
 }
 
-const DashboardTiles = ({ cards: externalCards, onCardPress: externalOnCardPress, onClose }: DashboardTilesProps) => {
-  const flatListRef = useRef<Animated.FlatList<any>>(null);
-  const scrollY = useSharedValue(0);
-  const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
-  const [currentFocusedIndex, setCurrentFocusedIndex] = useState(0);
+const DashboardTiles = ({ cards: providedCards, onCardPress: onExternalCardPress, onClose }: DashboardTilesProps) => {
+  const { accountNumber } = useContext(AccountNumberContext);
+
+  const networkCards = useNetworkCards(accountNumber);
+  const cards = providedCards || networkCards;
+  const listRef = useRef<Animated.FlatList<any>>(null);
+  const scrollOffset = useSharedValue(0);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [selectedNetworkId, setSelectedNetworkId] = useState<string>('bitcoin');
-  const modalOpacity = useSharedValue(1);
+  const [currentNetworkId, setCurrentNetworkId] = useState<string>('bitcoin');
+  const opacity = useSharedValue(1);
 
   useEffect(() => {
-    modalOpacity.value = withTiming(1, { duration: 150 });
-  }, [modalOpacity]);
+    opacity.value = withTiming(1, { duration: 150 });
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, [opacity]);
 
   useEffect(() => {
-    const sourceCards = externalCards || cards;
-    if (sourceCards.length > 0 && sourceCards[0]?.networkId) {
-      setSelectedNetworkId(sourceCards[0].networkId);
+    if (cards.length > 0 && cards[0]?.networkId) {
+      setCurrentNetworkId(cards[0].networkId);
     }
-  }, [externalCards]);
+  }, [cards]);
 
   const handleClose = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     if (onClose) {
       onClose();
     }
-    modalOpacity.value = withTiming(0, { duration: 300 });
-  }, [modalOpacity, onClose]);
+    opacity.value = withTiming(0, { duration: 300 });
+  }, [opacity, onClose]);
 
   const containerAnimatedStyle = useAnimatedStyle(
     () => ({
-      opacity: modalOpacity.value,
+      opacity: opacity.value,
     }),
-    [modalOpacity]
+    [opacity]
   );
 
   useFocusEffect(
     useCallback(() => {
-      setSelectedCardIndex(-1);
+      setSelectedIndex(-1);
     }, [])
   );
 
   const handleCardPress = useCallback(
     (index: number) => {
-      if (externalOnCardPress) {
-        externalOnCardPress(index);
+      if (onExternalCardPress) {
+        onExternalCardPress(index);
       } else {
-        setSelectedCardIndex(index);
+        setSelectedIndex(index);
       }
-      const sourceCards = externalCards || cards;
-      const actualIndex = index % sourceCards.length;
-      const selectedCard = sourceCards[actualIndex];
+      const actualIndex = index % cards.length;
+      const selectedCard = cards[actualIndex];
       if (selectedCard?.networkId) {
-        setSelectedNetworkId(selectedCard.networkId);
+        setCurrentNetworkId(selectedCard.networkId);
       }
     },
-    [externalOnCardPress, externalCards]
+    [onExternalCardPress, cards]
   );
 
-  const sourceCards = externalCards || cards;
-
-  const filteredCards = sourceCards;
-
-  const infiniteCards = useMemo(() => {
-    if (filteredCards.length === 0) return [];
+  const infiniteScrollData = useMemo(() => {
+    if (cards.length === 0) return [];
 
     const repeatCount = 7;
     const result: (LayerCard & { uniqueKey: string; originalIndex: number })[] = [];
 
     for (let i = 0; i < repeatCount; i++) {
-      filteredCards.forEach((card, index) => {
+      cards.forEach((card, index) => {
         result.push({
           ...card,
           uniqueKey: `${i}-${index}`,
@@ -505,97 +504,117 @@ const DashboardTiles = ({ cards: externalCards, onCardPress: externalOnCardPress
     }
 
     return result;
-  }, [filteredCards]);
+  }, [cards]);
 
-  const initialScrollIndex = useMemo(() => {
-    if (infiniteCards.length === 0) return 0;
+  const initialScrollPosition = useMemo(() => {
+    if (infiniteScrollData.length === 0) return 0;
     const middleRepeat = Math.floor(7 / 2);
-    return middleRepeat * filteredCards.length;
-  }, [infiniteCards.length, filteredCards.length]);
+    return middleRepeat * cards.length;
+  }, [infiniteScrollData.length, cards.length]);
 
   useEffect(() => {
-    if (!isInitialized && infiniteCards.length > 0 && flatListRef.current) {
-      const initialOffset = initialScrollIndex * SCROLL_SNAP_THRESHOLD;
+    if (!isInitialized && infiniteScrollData.length > 0 && listRef.current) {
+      const initialOffset = initialScrollPosition * SCROLL_SNAP_THRESHOLD;
       setTimeout(() => {
-        flatListRef.current?.scrollToOffset({ offset: initialOffset, animated: false });
+        listRef.current?.scrollToOffset({ offset: initialOffset, animated: false });
         setIsInitialized(true);
-        setCurrentFocusedIndex(initialScrollIndex);
-        scrollY.value = initialOffset;
+        scrollOffset.value = initialOffset;
       }, 100);
     }
-  }, [infiniteCards.length, isInitialized, initialScrollIndex, scrollY, externalCards]);
+  }, [infiniteScrollData.length, isInitialized, initialScrollPosition, scrollOffset, cards]);
 
   const handleScrollEnd = useCallback(() => {
-    const currentOffset = scrollY.value;
-    const sectionHeight = filteredCards.length * SCROLL_SNAP_THRESHOLD;
+    const currentOffset = scrollOffset.value;
+    const sectionHeight = cards.length * SCROLL_SNAP_THRESHOLD;
     const currentSection = Math.floor(currentOffset / sectionHeight);
 
     if (currentSection <= 0 || currentSection >= 6) {
       const relativeOffset = currentOffset % sectionHeight;
       const newOffset = sectionHeight * 3 + relativeOffset;
-      requestAnimationFrame(() => {
-        flatListRef.current?.scrollToOffset({ offset: newOffset, animated: false });
-        scrollY.value = newOffset;
-      });
+
+      setTimeout(() => {
+        listRef.current?.scrollToOffset({ offset: newOffset, animated: false });
+        scrollOffset.value = newOffset;
+      }, 8);
     }
-  }, [scrollY, filteredCards.length]);
+  }, [scrollOffset, cards.length]);
 
   const triggerHaptic = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   }, []);
 
   const updateFocusedCard = useCallback(
     (actualCardIndex: number) => {
-      setCurrentFocusedIndex(actualCardIndex);
-      const sourceCards = externalCards || cards;
-      const focusedCard = sourceCards[actualCardIndex];
+      const focusedCard = cards[actualCardIndex];
       if (focusedCard?.networkId) {
-        setSelectedNetworkId(focusedCard.networkId);
+        setCurrentNetworkId(focusedCard.networkId);
       }
     },
-    [externalCards]
+    [cards]
   );
 
   useAnimatedReaction(
     () => {
-      return Math.round(scrollY.value / SCROLL_SNAP_THRESHOLD);
+      return Math.round(scrollOffset.value / SCROLL_SNAP_THRESHOLD);
     },
     (currentIndex, previousIndex) => {
       if (currentIndex !== previousIndex && currentIndex >= 0) {
-        const actualCardIndex = currentIndex % filteredCards.length;
+        const actualCardIndex = currentIndex % cards.length;
         runOnJS(updateFocusedCard)(actualCardIndex);
         runOnJS(triggerHaptic)();
       }
     },
-    [scrollY, filteredCards.length]
+    [scrollOffset, cards.length]
   );
 
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
+  const scrollHandler = useAnimatedScrollHandler(
+    {
+      onScroll: (event) => {
+        scrollOffset.value = event.contentOffset.y;
+      },
     },
-  });
+    []
+  );
 
   const renderCard = useCallback(
     ({ item, index }: { item: LayerCard & { uniqueKey: string; originalIndex: number }; index: number }) => {
       const cardPosition = index * SCROLL_SNAP_THRESHOLD;
+
+      const hasPlaceholderData =
+        providedCards && (item.balance === 'Selected' || item.balance === 'Available' || item.usdValue === 'Mainnet' || item.usdValue === 'Testnet' || item.balance === '0.00000');
+
       return (
         <View style={[styles.cardWrapper, { zIndex: 999, elevation: 50 }]}>
-          <LayerCardTile
-            card={item}
-            index={index}
-            cardPosition={cardPosition}
-            scrollY={scrollY}
-            selectedIndex={selectedCardIndex}
-            onCardPress={handleCardPress}
-            transitionId={`card-${item.name}-${index}`}
-            totalCards={infiniteCards.length}
-            disableNavigation={!!externalOnCardPress}
-          />
+          {providedCards && !hasPlaceholderData ? (
+            <LayerCardTile
+              card={item}
+              index={index}
+              cardPosition={cardPosition}
+              scrollY={scrollOffset}
+              selectedIndex={selectedIndex}
+              onCardPress={handleCardPress}
+              transitionId={`card-${item.name}-${index}`}
+              totalCards={infiniteScrollData.length}
+              disableNavigation={!!onExternalCardPress}
+            />
+          ) : (
+            <NetworkCard
+              card={item}
+              index={index}
+              cardPosition={cardPosition}
+              scrollY={scrollOffset}
+              selectedIndex={selectedIndex}
+              onCardPress={handleCardPress}
+              transitionId={`card-${item.name}-${index}`}
+              totalCards={infiniteScrollData.length}
+              disableNavigation={!!onExternalCardPress}
+              accountNumber={accountNumber}
+            />
+          )}
         </View>
       );
     },
-    [scrollY, selectedCardIndex, handleCardPress, infiniteCards.length, externalOnCardPress]
+    [scrollOffset, selectedIndex, handleCardPress, infiniteScrollData.length, onExternalCardPress, providedCards, accountNumber]
   );
 
   return (
@@ -611,25 +630,25 @@ const DashboardTiles = ({ cards: externalCards, onCardPress: externalOnCardPress
         <Text style={styles.hiddenText}>Network Switcher</Text>
       </TouchableOpacity>
 
-      <View style={styles.selectedNetworkIndicator} testID={`selectedNetwork-${selectedNetworkId}`}>
-        <Text style={styles.hiddenText}>{selectedNetworkId} Selected</Text>
+      <View style={styles.selectedNetworkIndicator} testID={`selectedNetwork-${currentNetworkId}`}>
+        <Text style={styles.hiddenText}>{currentNetworkId} Selected</Text>
       </View>
 
       <Animated.FlatList
-        ref={flatListRef}
-        data={infiniteCards}
+        ref={listRef}
+        data={infiniteScrollData}
         renderItem={renderCard}
         keyExtractor={(item) => item.uniqueKey}
         onScroll={scrollHandler}
         onMomentumScrollEnd={handleScrollEnd}
-        scrollEventThrottle={16}
+        scrollEventThrottle={4}
         showsVerticalScrollIndicator={false}
-        decelerationRate="normal"
+        decelerationRate="fast"
         pagingEnabled={false}
         bounces={true}
         removeClippedSubviews={false}
-        maxToRenderPerBatch={15}
-        windowSize={21}
+        maxToRenderPerBatch={8}
+        windowSize={15}
         snapToInterval={SCROLL_SNAP_THRESHOLD}
         snapToAlignment="start"
         getItemLayout={(data, index) => ({ length: SCROLL_SNAP_THRESHOLD, offset: SCROLL_SNAP_THRESHOLD * index, index })}
@@ -648,7 +667,7 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   flatListContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     overflow: 'visible',
   },
   cardWrapper: {
@@ -664,16 +683,16 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
     backgroundColor: '#001689',
-    borderRadius: 24,
-    padding: 20,
+    borderRadius: 20,
+    padding: 24,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 12,
+      height: 8,
     },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 1,
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
     position: 'absolute',
   },
   touchableCard: {
