@@ -1,55 +1,19 @@
 appId: com.layerzwallet.mobile
 ---
-# Test 1: Switch to Bitcoin
+# Dynamic network switch test that uses the NETWORK environment variable
 - tapOn:
     id: 'NetworkSwitcherTrigger'
 - waitForAnimationToEnd
 - waitForAnimationToEnd
 
 - scrollUntilVisible:
-    speed: slow
+    speed: 20
     element:
-      id: 'network-bitcoin'
+      id: 'network-${env.NETWORK || "bitcoin"}'
 
 - tapOn:
-    id: 'network-bitcoin'
+    id: 'network-${env.NETWORK || "bitcoin"}'
 - waitForAnimationToEnd
 
 - assertVisible:
-    id: 'selectedNetwork-bitcoin'
-
-# Test 2: Switch to Rootstock
-- tapOn:
-    id: 'NetworkSwitcherTrigger'
-- waitForAnimationToEnd
-- waitForAnimationToEnd
-
-- scrollUntilVisible:
-    speed: slow
-    element:
-      id: 'network-rootstock'
-
-- tapOn:
-    id: 'network-rootstock'
-- waitForAnimationToEnd
-
-- assertVisible:
-    id: 'selectedNetwork-rootstock'
-
-# Test 3: Switch back to Bitcoin
-- tapOn:
-    id: 'NetworkSwitcherTrigger'
-- waitForAnimationToEnd
-- waitForAnimationToEnd
-
-- scrollUntilVisible:
-    speed: slow
-    element:
-      id: 'network-bitcoin'
-
-- tapOn:
-    id: 'network-bitcoin'
-- waitForAnimationToEnd
-
-- assertVisible:
-    id: 'selectedNetwork-bitcoin'
+    id: 'selectedNetwork-${env.NETWORK || "bitcoin"}'

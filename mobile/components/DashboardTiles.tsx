@@ -12,7 +12,7 @@ const CARD_HEIGHT = 200;
 const FOCUSED_SCALE = 1.0;
 const UNFOCUSED_SCALE = 0.8;
 const ZOOM_SCALE = 2.5;
-const CARD_SPACING = -80;
+const CARD_SPACING = -40;
 const SCROLL_SNAP_THRESHOLD = CARD_HEIGHT + CARD_SPACING;
 
 interface LayerCard {
@@ -622,13 +622,13 @@ const DashboardTiles = ({ cards: externalCards, onCardPress: externalOnCardPress
         keyExtractor={(item) => item.uniqueKey}
         onScroll={scrollHandler}
         onMomentumScrollEnd={handleScrollEnd}
-        scrollEventThrottle={8}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
-        decelerationRate="fast"
+        decelerationRate="normal"
         pagingEnabled={false}
         bounces={true}
         removeClippedSubviews={false}
-        maxToRenderPerBatch={10}
+        maxToRenderPerBatch={15}
         windowSize={21}
         snapToInterval={SCROLL_SNAP_THRESHOLD}
         snapToAlignment="start"
