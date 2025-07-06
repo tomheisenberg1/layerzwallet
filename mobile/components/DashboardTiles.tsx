@@ -362,6 +362,16 @@ const cards: LayerCard[] = [
     networkId: 'botanix',
   },
   {
+    name: 'Botanix Testnet',
+    ticker: 'BTC',
+    balance: '0.50000',
+    usdValue: '47,340.30',
+    color: '#A64B2F',
+    tokenCount: 1,
+    tags: ['Test Network'],
+    networkId: 'botanixtest',
+  },
+  {
     name: 'Strata',
     ticker: 'BTC',
     balance: '1.01762',
@@ -371,6 +381,76 @@ const cards: LayerCard[] = [
     tokenCount: 1,
     tags: ['zkBTC'],
     networkId: 'strata',
+  },
+  {
+    name: 'Citrea',
+    ticker: 'cBTC',
+    balance: '0.75000',
+    usdValue: '71,010.45',
+    color: '#FF6B35',
+    tokenCount: 3,
+    tags: ['BitVM', 'Rollup'],
+    networkId: 'citrea',
+  },
+  {
+    name: 'Ark',
+    ticker: 'BTC',
+    balance: '0.25000',
+    usdValue: '23,670.15',
+    color: '#8B5CF6',
+    tokenCount: 0,
+    tags: ['Privacy'],
+    networkId: 'ark',
+  },
+  {
+    name: 'Liquid',
+    ticker: 'L-BTC',
+    balance: '0.80000',
+    usdValue: '75,744.48',
+    color: '#00A86B',
+    tokenCount: 2,
+    tags: ['Sidechain'],
+    networkId: 'liquid',
+  },
+  {
+    name: 'Liquid Testnet',
+    ticker: 'L-BTC',
+    balance: '0.10000',
+    usdValue: '9,468.06',
+    color: '#00B87C',
+    tokenCount: 1,
+    tags: ['Test Network'],
+    networkId: 'liquidtest',
+  },
+  {
+    name: 'Spark',
+    ticker: 'BTC',
+    balance: '0.35000',
+    usdValue: '33,138.21',
+    color: '#FF4081',
+    tokenCount: 0,
+    tags: ['Layer 2'],
+    networkId: 'spark',
+  },
+  {
+    name: 'Lightning',
+    ticker: 'BTC',
+    balance: '0.05000',
+    usdValue: '4,734.03',
+    color: '#FFC107',
+    tokenCount: 0,
+    tags: ['Payment'],
+    networkId: 'lightning',
+  },
+  {
+    name: 'Lightning Testnet',
+    ticker: 'BTC',
+    balance: '0.01000',
+    usdValue: '946.81',
+    color: '#FFD54F',
+    tokenCount: 0,
+    tags: ['Test Network'],
+    networkId: 'lightningtest',
   },
 ];
 
@@ -386,20 +466,11 @@ const DashboardTiles = ({ cards: externalCards, onCardPress: externalOnCardPress
   const [selectedCardIndex, setSelectedCardIndex] = useState(-1);
   const [currentFocusedIndex, setCurrentFocusedIndex] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [selectedNetworkId, setSelectedNetworkId] = useState<string>('bitcoin');
   const modalOpacity = useSharedValue(1);
 
   useEffect(() => {
     modalOpacity.value = withTiming(1, { duration: 150 });
   }, [modalOpacity]);
-
-  // Set initial selected network on mount
-  useEffect(() => {
-    const sourceCards = externalCards || cards;
-    if (sourceCards.length > 0 && sourceCards[0]?.networkId) {
-      setSelectedNetworkId(sourceCards[0].networkId);
-    }
-  }, [externalCards]);
 
   const handleClose = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -429,15 +500,9 @@ const DashboardTiles = ({ cards: externalCards, onCardPress: externalOnCardPress
       } else {
         setSelectedCardIndex(index);
       }
-      // Update selected network based on the card that was pressed
-      const sourceCards = externalCards || cards;
-      const actualIndex = index % sourceCards.length;
-      const selectedCard = sourceCards[actualIndex];
-      if (selectedCard?.networkId) {
-        setSelectedNetworkId(selectedCard.networkId);
-      }
+      // Card press handling - network selection removed
     },
-    [externalOnCardPress, externalCards]
+    [externalOnCardPress]
   );
 
   const sourceCards = externalCards || cards;
@@ -482,13 +547,7 @@ const DashboardTiles = ({ cards: externalCards, onCardPress: externalOnCardPress
         setCurrentFocusedIndex(initialScrollIndex);
         scrollY.value = initialOffset;
 
-        // Set initial selected network based on the focused card
-        const sourceCards = externalCards || cards;
-        const actualCardIndex = initialScrollIndex % sourceCards.length;
-        const initialCard = sourceCards[actualCardIndex];
-        if (initialCard?.networkId) {
-          setSelectedNetworkId(initialCard.networkId);
-        }
+        // Initial setup complete - network selection removed
       }, 100);
     }
   }, [infiniteCards.length, isInitialized, initialScrollIndex, scrollY, externalCards]);
@@ -516,18 +575,10 @@ const DashboardTiles = ({ cards: externalCards, onCardPress: externalOnCardPress
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
-  const updateFocusedCard = useCallback(
-    (actualCardIndex: number) => {
-      setCurrentFocusedIndex(actualCardIndex);
-      // Update selected network based on the focused card
-      const sourceCards = externalCards || cards;
-      const focusedCard = sourceCards[actualCardIndex];
-      if (focusedCard?.networkId) {
-        setSelectedNetworkId(focusedCard.networkId);
-      }
-    },
-    [externalCards]
-  );
+  const updateFocusedCard = useCallback((actualCardIndex: number) => {
+    setCurrentFocusedIndex(actualCardIndex);
+    // Focus update - network selection removed
+  }, []);
 
   useAnimatedReaction(
     () => {
@@ -588,33 +639,6 @@ const DashboardTiles = ({ cards: externalCards, onCardPress: externalOnCardPress
           <Ionicons name="close" size={24} color="white" />
         </TouchableOpacity>
       )}
-
-      {/* Network Switcher Trigger - Hidden but accessible for tests */}
-      <TouchableOpacity
-        style={styles.networkSwitcherTrigger}
-        testID="NetworkSwitcherTrigger"
-        onPress={() => {
-          // This is just for test automation - the actual switching happens via card interaction
-        }}
-      >
-        <Text style={styles.hiddenText}>Network Switcher</Text>
-      </TouchableOpacity>
-
-      {/* Selected Network Indicators - Hidden but accessible for tests */}
-      <View style={styles.selectedNetworkIndicators}>
-        <View testID="selectedNetwork-bitcoin" style={[styles.selectedNetworkIndicator, { opacity: selectedNetworkId === 'bitcoin' ? 1 : 0 }]}>
-          <Text style={styles.hiddenText}>Bitcoin Selected</Text>
-        </View>
-        <View testID="selectedNetwork-rootstock" style={[styles.selectedNetworkIndicator, { opacity: selectedNetworkId === 'rootstock' ? 1 : 0 }]}>
-          <Text style={styles.hiddenText}>Rootstock Selected</Text>
-        </View>
-        <View testID="selectedNetwork-botanix" style={[styles.selectedNetworkIndicator, { opacity: selectedNetworkId === 'botanix' ? 1 : 0 }]}>
-          <Text style={styles.hiddenText}>Botanix Selected</Text>
-        </View>
-        <View testID="selectedNetwork-strata" style={[styles.selectedNetworkIndicator, { opacity: selectedNetworkId === 'strata' ? 1 : 0 }]}>
-          <Text style={styles.hiddenText}>Strata Selected</Text>
-        </View>
-      </View>
 
       <Animated.FlatList
         ref={flatListRef}
@@ -777,29 +801,5 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 50,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  networkSwitcherTrigger: {
-    position: 'absolute',
-    top: -1000, // Hidden off-screen but accessible for tests
-    left: 0,
-    width: 1,
-    height: 1,
-    opacity: 0,
-  },
-  selectedNetworkIndicators: {
-    position: 'absolute',
-    top: -1000, // Hidden off-screen but accessible for tests
-    left: 0,
-    width: 1,
-    height: 1,
-  },
-  selectedNetworkIndicator: {
-    width: 1,
-    height: 1,
-    opacity: 0,
-  },
-  hiddenText: {
-    fontSize: 1,
-    color: 'transparent',
   },
 });
