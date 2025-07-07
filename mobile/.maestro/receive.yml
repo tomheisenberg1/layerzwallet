@@ -3,7 +3,7 @@ appId: com.layerzwallet.mobile
 - runFlow: subflows/wallet-creation.yml
 
 # run for all networks
-- evalScript: ${output.networks = ['bitcoin','rootstock', 'botanix', 'botanixtest','strata','citrea','ark','liquid','liquidtest','spark']}
+- evalScript: ${output.networks = ['bitcoin','rootstock','botanix','strata','citrea','ark','liquid','spark']}
 - repeat:
     while:
       true: ${output.networks.length > 0}
@@ -34,7 +34,7 @@ appId: com.layerzwallet.mobile
       - runFlow: subflows/back.yml
 
 # for Lightning network we need to enter the amount to generate the invoice
-- evalScript: ${output.networks = ['lightning','lightningtest']}
+- evalScript: ${output.networks = ['lightning']}
 - repeat:
     while:
       true: ${output.networks.length > 0}
