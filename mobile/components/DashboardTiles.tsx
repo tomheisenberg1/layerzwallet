@@ -4,7 +4,6 @@ import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, runOnUI, runOnJS, interpolate, useAnimatedScrollHandler, useAnimatedReaction } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { BlurView } from 'expo-blur';
 import { getAvailableNetworks } from '@shared/types/networks';
 import { getNetworkGradient, getNetworkIcon } from '@shared/constants/Colors';
 import { getIsTestnet, getTickerByNetwork, getDecimalsByNetwork } from '@shared/models/network-getters';
@@ -619,7 +618,6 @@ const DashboardTiles = ({ cards: providedCards, onCardPress: onExternalCardPress
 
   return (
     <Animated.View style={[styles.container, containerAnimatedStyle]}>
-      <BlurView intensity={50} tint="dark" style={styles.backgroundBlur} pointerEvents="none" />
       {onClose && (
         <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
           <Ionicons name="close" size={24} color="white" />
