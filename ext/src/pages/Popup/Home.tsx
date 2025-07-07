@@ -11,18 +11,9 @@ import { getSwapPairs } from '@shared/models/swap-providers-list';
 import { getDecimalsByNetwork, getIsTestnet, getKnowMoreUrl, getTickerByNetwork } from '@shared/models/network-getters';
 import { capitalizeFirstLetter, formatBalance, formatFiatBalance } from '@shared/modules/string-utils';
 import { SwapPair, SwapPlatform } from '@shared/types/swap';
+import { useAvailableNetworks } from '@shared/hooks/useAvailableNetworks';
+import { NETWORK_ARKMUTINYNET, NETWORK_BITCOIN, NETWORK_LIGHTNING, NETWORK_LIGHTNINGTESTNET, NETWORK_LIQUID, NETWORK_LIQUIDTESTNET, NETWORK_SPARK } from '@shared/types/networks';
 
-import {
-  getAvailableNetworks,
-  NETWORK_ARKMUTINYNET,
-  NETWORK_BITCOIN,
-  NETWORK_LIGHTNING,
-  NETWORK_LIGHTNINGTESTNET,
-  NETWORK_LIQUID,
-  NETWORK_LIQUIDTESTNET,
-  NETWORK_SPARK,
-  Networks,
-} from '@shared/types/networks';
 import { BackgroundCaller } from '../../modules/background-caller';
 import PartnersView from './components/PartnersView';
 import TokensView from './components/TokensView';
@@ -40,6 +31,7 @@ const Home: React.FC = () => {
   const { exchangeRate } = useExchangeRate(network, 'USD');
   const [swapPairs, setSwapPairs] = useState<SwapPair[]>([]);
   const [showSwapInterface, setShowSwapInterface] = useState<boolean>(false);
+  const availableNetworks = useAvailableNetworks();
 
   useEffect(() => {
     setIsTestnet(getIsTestnet(network));
@@ -86,7 +78,7 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <Switch items={getAvailableNetworks()} activeItem={network} onItemClick={setNetwork} />
+      <Switch items={availableNetworks} activeItem={network} onItemClick={setNetwork} />
       {getKnowMoreUrl(network) ? (
         <div style={{ textAlign: 'right' }}>
           <a
