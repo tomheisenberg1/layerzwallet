@@ -6,14 +6,18 @@ appId: com.layerzwallet.mobile
 - waitForAnimationToEnd
 - waitForAnimationToEnd
 
-- scrollUntilVisible:
-    speed: 20
-    element:
-      id: 'network-${env.NETWORK || "bitcoin"}'
+- repeat:
+    while:
+      notVisible:
+        id: ${'selectedNetwork-' + NETWORK}
+    commands:
+      - swipe:
+          start: 50%,80%
+          end: 50%,65%
 
 - tapOn:
-    id: 'network-${env.NETWORK || "bitcoin"}'
+    id: ${'network-' + NETWORK}
 - waitForAnimationToEnd
-
+- waitForAnimationToEnd
 - assertVisible:
-    id: 'selectedNetwork-${env.NETWORK || "bitcoin"}'
+    id: ${'selectedNetwork-' + NETWORK}

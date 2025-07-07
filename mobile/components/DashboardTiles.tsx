@@ -790,11 +790,9 @@ const styles = StyleSheet.create({
   },
   selectedNetworkIndicator: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 1,
-    height: 1,
-    opacity: 0,
+    top: 140,
+    right: 20,
+    padding: 10,
   },
   hiddenText: {
     color: 'transparent',
