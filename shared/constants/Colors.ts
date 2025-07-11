@@ -20,6 +20,7 @@ const neutral = '#CECDCD';
 export const gradients = {
   gradient1: [accent1, accent2],
   gradient2: [accent3, accent4],
+  blueGradient: ['#01125f', '#0e2589'] as const,
 };
 
 export const Colors = {
@@ -32,8 +33,8 @@ export const Colors = {
     tabIconSelected: accent1,
   },
   dark: {
-    text: primaryColor,
-    background: '#fff',
+    text: 'grey',
+    background: '#011474',
     tint: primaryColor,
     icon: accent1,
     tabIconDefault: neutral,
