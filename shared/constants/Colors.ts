@@ -38,7 +38,7 @@ export const Colors = {
     paragraphText: '#B8B8B8',
   },
   dark: {
-    text: '#FFFFFF',
+    text: 'grey', // Change to #FFFFFF later to match Figma. Currently using 'grey' for visibility in dark mode and e2e testing.
     background: primaryColor,
     tint: primaryColor,
     icon: accent1,
