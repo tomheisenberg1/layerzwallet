@@ -11,7 +11,6 @@ export default function IntroScreen() {
   const router = useRouter();
 
   const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoTranslateY = useRef(new Animated.Value(50)).current;
   const titleOpacity = useRef(new Animated.Value(0)).current;
   const titleTranslateY = useRef(new Animated.Value(30)).current;
   const subtitleOpacity = useRef(new Animated.Value(0)).current;
@@ -21,18 +20,11 @@ export default function IntroScreen() {
 
   useEffect(() => {
     const animationSequence = Animated.sequence([
-      Animated.parallel([
-        Animated.timing(logoOpacity, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(logoTranslateY, {
-          toValue: 0,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ]),
+      Animated.timing(logoOpacity, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
 
       Animated.delay(300),
 
@@ -81,7 +73,7 @@ export default function IntroScreen() {
     ]);
 
     animationSequence.start();
-  }, [logoOpacity, logoTranslateY, titleOpacity, titleTranslateY, subtitleOpacity, subtitleTranslateY, buttonsOpacity, buttonsTranslateY]);
+  }, [logoOpacity, titleOpacity, titleTranslateY, subtitleOpacity, subtitleTranslateY, buttonsOpacity, buttonsTranslateY]);
 
   const handleCreateWallet = async () => {
     router.replace('/onboarding/create-wallet');
@@ -99,7 +91,6 @@ export default function IntroScreen() {
             style={[
               {
                 opacity: logoOpacity,
-                transform: [{ translateY: logoTranslateY }],
               },
             ]}
           >
